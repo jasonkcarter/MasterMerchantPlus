@@ -43,8 +43,8 @@ namespace MMPlus.ToCsv
                             sale =>
                             {
                                 string line = string.Format("{0},{1},{2},{3},{4},{5},{6},{7},{8},{9}\n",
-                                    sale.TimestampId, sale.TimestampInt, sale.ItemBaseId, sale.ItemIndex,
-                                    sale.GetItemNameFromLink(), sale.Guild, sale.Quantity, sale.Price, sale.Buyer,
+                                    sale.TimestampId, sale.SaleTimestamp, sale.ItemBaseId, sale.ItemIndex,
+                                    sale.GetItemNameFromLink(), sale.GuildName, sale.Quantity, sale.Price, sale.Buyer,
                                     sale.Seller);
                                 // ReSharper disable once AccessToDisposedClosure
                                 writer.Write(line);

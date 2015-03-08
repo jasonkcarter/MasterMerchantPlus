@@ -34,10 +34,10 @@ namespace MMPlus.Shared.EsoSavedVariables
         /// </summary>
         /// <param name="filters">(optional) If set, only returns sales that match the give filters.</param>
         /// <returns>The list of sales retreived.</returns>
-        public List<EsoGuildStoreSale> GetEsoGuildStoreSales(params EsoGuildStoreSaleFilter[] filters)
+        public List<EsoSale> GetEsoGuildStoreSales(params EsoSaleFilter[] filters)
         {
             // Holds the sales discovered in the saved variables file
-            var sales = new List<EsoGuildStoreSale>();
+            var sales = new List<EsoSale>();
 
             if (!ProcessEsoGuildStoreSales(sales.Add, filters))
             {
@@ -52,13 +52,13 @@ namespace MMPlus.Shared.EsoSavedVariables
         /// </summary>
         /// <param name="filters">(optional) If set, only returns sales that match the give filters.</param>
         /// <returns>An asynchronous task containing the list of sales retreived.</returns>
-        public Task<List<EsoGuildStoreSale>> GetEsoGuildStoreSalesAsync(params EsoGuildStoreSaleFilter[] filters)
+        public Task<List<EsoSale>> GetEsoGuildStoreSalesAsync(params EsoSaleFilter[] filters)
         {
-            return Task<List<EsoGuildStoreSale>>.Factory.StartNew(() => GetEsoGuildStoreSales(filters));
+            return Task<List<EsoSale>>.Factory.StartNew(() => GetEsoGuildStoreSales(filters));
         }
 
-        public bool ProcessEsoGuildStoreSales(Action<EsoGuildStoreSale> onSaleFound,
-            params EsoGuildStoreSaleFilter[] filters)
+        public bool ProcessEsoGuildStoreSales(Action<EsoSale> onSaleFound,
+            params EsoSaleFilter[] filters)
         {
             if (FilePath == null)
             {
@@ -68,8 +68,8 @@ namespace MMPlus.Shared.EsoSavedVariables
             // Set a default filter to not filter anything
             if (filters == null || filters.Length == 0)
             {
-                filters = new EsoGuildStoreSaleFilter[1];
-                filters[0] = new EsoGuildStoreSaleFilter();
+                filters = new EsoSaleFilter[1];
+                filters[0] = new EsoSaleFilter();
             }
 
             // Set up our custom Lua listener for extracting sale data
@@ -88,11 +88,11 @@ namespace MMPlus.Shared.EsoSavedVariables
                     // Make sure the sale matches at least one of the filters, then add it to the list
                     var sale = saleFoundArgs.Sale;
                     if (filters.Where(filter => string.IsNullOrEmpty(filter.GuildName)
-                                                || filter.GuildName.Equals(sale.Guild,
+                                                || filter.GuildName.Equals(sale.GuildName,
                                                     StringComparison.CurrentCultureIgnoreCase))
-                        .Any(filter => (filter.TimestampMinimum == null || sale.TimestampInt >= filter.TimestampMinimum)
+                        .Any(filter => (filter.TimestampMinimum == null || sale.SaleTimestamp >= filter.TimestampMinimum)
                                        &&
-                                       (filter.TimestampMaximum == null || sale.TimestampInt <= filter.TimestampMaximum)))
+                                       (filter.TimestampMaximum == null || sale.SaleTimestamp <= filter.TimestampMaximum)))
                     {
                         onSaleFound(sale);
                     }

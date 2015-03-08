@@ -33,7 +33,12 @@ namespace MMPlus.Shared.EsoSavedVariables
         /// <summary>
         ///     Gets the instance of the sale currently being populated with data from the parse tree.
         /// </summary>
-        public EsoGuildStoreSale CurrentSale { get; private set; }
+        public EsoSale CurrentSale { get; private set; }
+
+        /// <summary>
+        /// Gets the name of the account associated with the current parse tree scope.
+        /// </summary>
+        public string CurrentAccountName { get; private set; }
 
         /// <summary>
         ///     Enter a parse tree produced by <see cref="LuaParser.tableconstructor" />.
@@ -47,10 +52,20 @@ namespace MMPlus.Shared.EsoSavedVariables
             _currentScope++;
             switch (_currentScope)
             {
+                case MMSavedVariableScope.AccountData:
+                    if (field != null)
+                    {
+                        CurrentAccountName = field.Name;
+                    }
+                    break;
+
                 case MMSavedVariableScope.EsoItemBase:
 
                     // Save the name of the base item scope field as the item id for all items within the scope.
-                    _currentItemBaseId = field.Name;
+                    if (field != null)
+                    {
+                        _currentItemBaseId = field.Name;
+                    }
                     break;
 
                 case MMSavedVariableScope.EsoItem:
@@ -79,7 +94,10 @@ namespace MMPlus.Shared.EsoSavedVariables
                     }
                     else
                     {
-                        CurrentSale = new EsoGuildStoreSale();
+                        CurrentSale = new EsoSale
+                        {
+                            //Submitter = CurrentAccountName
+                        };
                         CurrentSale.Set(CurrentItem);
                     }
                     break;

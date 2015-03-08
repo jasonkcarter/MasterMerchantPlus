@@ -36,6 +36,19 @@ namespace MMPlus.Shared.Model
         }
 
         /// <summary>
+        ///     Gets a value indicating whether this instance is valid.
+        /// </summary>
+        /// <value>
+        ///     <c>true</c> if this instance is valid; otherwise, <c>false</c>.
+        /// </value>
+        public bool IsValid { get; private set; }
+
+        /// <summary>
+        ///     Gets or sets the path to this item's icon file.
+        /// </summary>
+        public string ItemIcon { get; set; }
+
+        /// <summary>
         ///     Gets or sets a unique index to identify this specific variety of item, which incorporates required level/veteran
         ///     rank, quality, traits, and extra effects numbers.
         /// </summary>
@@ -50,22 +63,25 @@ namespace MMPlus.Shared.Model
                 RowKey = value;
 
                 // Populate Level, VeteranRank, Quality, Trait, and PotionEffects if this is a valid ItemIndex.
-                IsValid = ParseIndex() && !string.IsNullOrEmpty(BaseId);
+                int level;
+                int veteranRank;
+                EsoItemQuality quality;
+                EsoItemTrait trait;
+                int potionEffects;
+                bool validIndex = TryParseIndex(ItemIndex,
+                    out level, out veteranRank, out quality, out trait, out potionEffects);
+                if (validIndex)
+                {
+                    Level = level;
+                    VeteranRank = veteranRank;
+                    Quality = quality;
+                    Trait = trait;
+                    PotionEffects = potionEffects;
+                }
+
+                IsValid = validIndex && !string.IsNullOrEmpty(BaseId);
             }
         }
-
-        /// <summary>
-        ///     Gets a value indicating whether this instance is valid.
-        /// </summary>
-        /// <value>
-        ///     <c>true</c> if this instance is valid; otherwise, <c>false</c>.
-        /// </value>
-        public bool IsValid { get; private set; }
-
-        /// <summary>
-        ///     Gets or sets the path to this item's icon file.
-        /// </summary>
-        public string ItemIcon { get; set; }
 
         /// <summary>
         ///     Gets or sets the non-veteran level a player is required to be at in order to use this item.
@@ -99,6 +115,44 @@ namespace MMPlus.Shared.Model
         public int VeteranRank { get; set; }
 
         /// <summary>
+        ///     Populates the Level, VeteranRank, Quality, Trait, and PotionEffects properties from their corresponding values in
+        ///     the ItemIndex property.
+        /// </summary>
+        /// <returns><c>true</c> if ItemIndex is able to be successfully parsed; otherwise <c>false</c>.</returns>
+        public static bool TryParseIndex(string itemIndex, out int level, out int veteranRank,
+            out EsoItemQuality quality, out EsoItemTrait trait, out int potionEffects)
+        {
+            // Confirm that the ItemIndex property look like 5 values separated by colons.
+            string[] indexParts = null;
+
+            // Try to parse each value of the index into an integer, and then validate
+            // the quality and trait.
+            var values = new int[5];
+            if (string.IsNullOrEmpty(itemIndex)
+                || (indexParts = itemIndex.Split(':')).Length != 5
+                || indexParts.Where((t, i) => !int.TryParse(t, out values[i])).Any()
+                || !Enum.IsDefined(typeof (EsoItemQuality), values[3])
+                || !Enum.IsDefined(typeof (EsoItemTrait), values[4]))
+            {
+                level = -1;
+                veteranRank = -1;
+                quality = EsoItemQuality.Trash;
+                trait = EsoItemTrait.None;
+                potionEffects = -1;
+                return false;
+            }
+
+            // Set properties
+            level = values[0];
+            veteranRank = values[1];
+            quality = (EsoItemQuality) values[2];
+            trait = (EsoItemTrait) values[3];
+            potionEffects = values[4];
+
+            return true;
+        }
+
+        /// <summary>
         ///     Loads the value from a given Lua table field into it's corresponding property, if one exists.
         /// </summary>
         /// <param name="field">The Lua table field containing the property and value to set.</param>
@@ -111,38 +165,6 @@ namespace MMPlus.Shared.Model
                     ItemIcon = field.Value;
                     break;
             }
-        }
-
-        /// <summary>
-        ///     Populates the Level, VeteranRank, Quality, Trait, and PotionEffects properties from their corresponding values in
-        ///     the ItemIndex property.
-        /// </summary>
-        /// <returns><c>true</c> if ItemIndex is able to be successfully parsed; otherwise <c>false</c>.</returns>
-        private bool ParseIndex()
-        {
-            // Confirm that the ItemIndex property look like 5 values separated by colons.
-            if (string.IsNullOrEmpty(ItemIndex)) return false;
-            string[] indexParts = ItemIndex.Split(':');
-            if (indexParts.Length != 5) return false;
-
-            // Try to parse each value of the index into an integer, and then validate
-            // the quality and trait.
-            var values = new int[5];
-            if (indexParts.Where((t, i) => !int.TryParse(t, out values[i])).Any()
-                || !Enum.IsDefined(typeof (EsoItemQuality), values[3])
-                || !Enum.IsDefined(typeof (EsoItemTrait), values[4]))
-            {
-                return false;
-            }
-
-            // Set properties
-            Level = values[0];
-            VeteranRank = values[1];
-            Quality = (EsoItemQuality) values[2];
-            Trait = (EsoItemTrait) values[3];
-            PotionEffects = values[4];
-
-            return true;
         }
     }
 }
