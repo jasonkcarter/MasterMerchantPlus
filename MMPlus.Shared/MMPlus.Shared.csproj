@@ -36,6 +36,9 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\Antlr4.Runtime.4.3.0\lib\portable-net4+sl5+netcore45+wp8+MonoAndroid1+MonoTouch1\Antlr4.Runtime.portable-net40.dll</HintPath>
     </Reference>
+    <Reference Include="Inflector">
+      <HintPath>..\packages\Inflector.1.0.0.0\lib\net40\Inflector.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.Data.Edm, Version=5.6.2.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\Microsoft.Data.Edm.5.6.2\lib\net40\Microsoft.Data.Edm.dll</HintPath>
@@ -48,11 +51,13 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\Microsoft.Data.Services.Client.5.6.2\lib\net40\Microsoft.Data.Services.Client.dll</HintPath>
     </Reference>
-    <Reference Include="Microsoft.WindowsAzure.Configuration">
+    <Reference Include="Microsoft.WindowsAzure.Configuration, Version=1.8.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\Microsoft.WindowsAzure.ConfigurationManager.1.8.0.0\lib\net35-full\Microsoft.WindowsAzure.Configuration.dll</HintPath>
     </Reference>
-    <Reference Include="Microsoft.WindowsAzure.Storage">
-      <HintPath>..\packages\WindowsAzure.Storage.4.3.0\lib\net40\Microsoft.WindowsAzure.Storage.dll</HintPath>
+    <Reference Include="Microsoft.WindowsAzure.Storage, Version=4.3.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\WindowsAzure.Storage.4.3.2-preview\lib\net40\Microsoft.WindowsAzure.Storage.dll</HintPath>
     </Reference>
     <Reference Include="Newtonsoft.Json, Version=4.5.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.5.0.8\lib\net40\Newtonsoft.Json.dll</HintPath>
@@ -70,17 +75,19 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Data\TableStorageRepository.cs" />
     <Compile Include="EsoSavedVariables\EsoGuildStoreSaleEventArgs.cs" />
-    <Compile Include="EsoSavedVariables\EsoGuildStoreSaleFilter.cs" />
+    <Compile Include="EsoSavedVariables\EsoSaleFilter.cs" />
     <Compile Include="EsoSavedVariables\MMLuaListener.cs" />
     <Compile Include="EsoSavedVariables\MMSavedVariableReader.cs" />
     <Compile Include="EsoSavedVariables\MMSavedVariableScope.cs" />
-    <Compile Include="Extensions.cs" />
-    <Compile Include="Model\EsoGuildStoreSale.cs" />
+    <Compile Include="Model\EsoGuild.cs" />
+    <Compile Include="Model\EsoSale.cs" />
     <Compile Include="Model\EsoItem.cs" />
-    <Compile Include="Model\EsoItemInfo.cs" />
+    <Compile Include="Model\EsoItemSalesData.cs" />
     <Compile Include="Model\EsoItemQuality.cs" />
     <Compile Include="Model\EsoItemTrait.cs" />
+    <Compile Include="Data\ISemiDelimited.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -92,6 +99,7 @@
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

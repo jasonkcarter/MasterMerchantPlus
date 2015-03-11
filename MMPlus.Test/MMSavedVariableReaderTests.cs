@@ -54,7 +54,7 @@ namespace MMPlus.Test
                 var reader = new MMSavedVariableReader(testFileName);
                 // Choose a recent enough timestamp that the prefix will have no records with prefixes higher than it.
                 // This allows us to do a straight up grep search by timestamp prefix to get the expected count.
-                var filter = new EsoGuildStoreSaleFilter
+                var filter = new EsoSaleFilter
                 {
                     GuildName = "Ethereal Traders Union",
                     TimestampMinimum = 1424900000
@@ -64,7 +64,9 @@ namespace MMPlus.Test
                 int expectedSaleCount = CountLuaTablesWithLines(testFileName, timestampSubstring, guildSubstring);
 
                 // Act
-                List<EsoGuildStoreSale> sales = reader.GetEsoGuildStoreSales(filter);
+                // TODO: Performance tune. Possibly ditch full Lua parsing. 
+                // TODO: Full data file scan is fine to take a long time, but filtered scans should be faster than this currently performs.
+                List<EsoSale> sales = reader.GetEsoGuildStoreSales(filter);
 
                 // Assert
                 if (expectedSaleCount != sales.Count)
@@ -89,7 +91,7 @@ namespace MMPlus.Test
                 int expectedSaleCount = CountLuaTablesWithLines(testFileName);
 
                 // Act
-                List<EsoGuildStoreSale> sales = reader.GetEsoGuildStoreSales();
+                List<EsoSale> sales = reader.GetEsoGuildStoreSales();
 
                 // Assert
                 if (expectedSaleCount != sales.Count)
@@ -113,7 +115,7 @@ namespace MMPlus.Test
                 var reader = new MMSavedVariableReader(testFileName);
                 // Choose a recent enough timestamp that the prefix will have no records with prefixes higher than it.
                 // This allows us to do a straight up grep search by timestamp prefix to get the expected count.
-                var filter = new EsoGuildStoreSaleFilter
+                var filter = new EsoSaleFilter
                 {
                     TimestampMinimum = 1424900000
                 };
@@ -121,7 +123,7 @@ namespace MMPlus.Test
                 int expectedSaleCount = CountLuaTablesWithLines(testFileName, searchString);
 
                 // Act
-                List<EsoGuildStoreSale> sales = reader.GetEsoGuildStoreSales(filter);
+                List<EsoSale> sales = reader.GetEsoGuildStoreSales(filter);
 
                 // Assert
                 if (expectedSaleCount != sales.Count)

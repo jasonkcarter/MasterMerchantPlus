@@ -3,7 +3,7 @@
     /// <summary>
     ///     Used to filter out guild store sales by name and/or date/time.
     /// </summary>
-    public class EsoGuildStoreSaleFilter
+    public class EsoSaleFilter
     {
         /// <summary>
         ///     Gets or sets the name of the guild that the filter applies to.
