@@ -89,6 +89,14 @@ namespace MMPlus.Shared.Model
         public string Seller { get; set; }
 
         /// <summary>
+        ///     Gets the value used to group sales that happen around the same time together, since TimestampMinimum and
+        ///     SaleTimestamp from
+        ///     different
+        ///     clients usually don't match.
+        /// </summary>
+        public int TimestampId { get; set; }
+
+        /// <summary>
         ///     Gets or sets the Unix timestamp (i.e. number of seconds since 1970-01-01 00:00:00) that the sale occured at.
         /// </summary>
         public int TimestampInt
@@ -99,6 +107,7 @@ namespace MMPlus.Shared.Model
                 _timestampInt = value;
                 var timestampDateTime = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc).AddSeconds(value);
                 Timestamp = new DateTimeOffset(timestampDateTime);
+                TimestampId = (int)Math.Round(value / 1000F);
             }
         }
 
