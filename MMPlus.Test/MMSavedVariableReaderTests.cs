@@ -1,9 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.IO;
-using System.IO.Compression;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Microsoft.VisualStudio.TestTools.UnitTesting.Web;
 using MMPlus.Shared.EsoSavedVariables;
 using MMPlus.Shared.Model;
 
@@ -33,7 +31,7 @@ namespace MMPlus.Test
     public class MMSavedVariableReaderTests
     {
         /// <summary>
-        /// Name of the zip archive containing all the test Master Merchant saved variable sales data.
+        ///     Name of the zip archive containing all the test Master Merchant saved variable sales data.
         /// </summary>
         public const string SavedVariablesArchive = "SavedVariables.zip";
 
@@ -41,6 +39,40 @@ namespace MMPlus.Test
         ///     Name of the file containing test Master Merchant saved variable sales data.
         /// </summary>
         public const string TestFilePathFormat = "MM{0:D2}Data.lua";
+
+        /// <summary>
+        ///     Validate that the synchronous GetEsoGuildStoreSales() method returns the expected number of sales when run on
+        ///     TestFile00 with a timestamp filter.
+        /// </summary>
+        [TestMethod]
+        public void MMSavedVariableReader_GetEsoGuildStoreSales_GuildTimestampFilter()
+        {
+            for (int i = 0; i < 16; i++)
+            {
+                string testFileName = string.Format(TestFilePathFormat, i);
+                // Arrange
+                var reader = new MMSavedVariableReader(testFileName);
+                // Choose a recent enough timestamp that the prefix will have no records with prefixes higher than it.
+                // This allows us to do a straight up grep search by timestamp prefix to get the expected count.
+                var filter = new EsoGuildStoreSaleFilter
+                {
+                    GuildName = "Ethereal Traders Union",
+                    TimestampMinimum = 1424900000
+                };
+                string timestampSubstring = string.Format("[\"timestamp\"] = {0}", filter.TimestampMinimum/100000);
+                string guildSubstring = string.Format("[\"guild\"] = \"{0}\"", filter.GuildName);
+                int expectedSaleCount = CountLuaTablesWithLines(testFileName, timestampSubstring, guildSubstring);
+
+                // Act
+                List<EsoGuildStoreSale> sales = reader.GetEsoGuildStoreSales(filter);
+
+                // Assert
+                if (expectedSaleCount != sales.Count)
+                {
+                    Assert.Fail("Expected {0} sales in {1}, but found {2}", expectedSaleCount, testFileName, sales.Count);
+                }
+            }
+        }
 
         /// <summary>
         ///     Validate that the synchronous GetEsoGuildStoreSales() method returns the expected number of sales when run on
@@ -83,44 +115,10 @@ namespace MMPlus.Test
                 // This allows us to do a straight up grep search by timestamp prefix to get the expected count.
                 var filter = new EsoGuildStoreSaleFilter
                 {
-                    Timestamp = 1424900000
+                    TimestampMinimum = 1424900000
                 };
-                string searchString = string.Format("[\"timestamp\"] = {0}", filter.Timestamp/100000);
+                string searchString = string.Format("[\"timestamp\"] = {0}", filter.TimestampMinimum/100000);
                 int expectedSaleCount = CountLuaTablesWithLines(testFileName, searchString);
-
-                // Act
-                List<EsoGuildStoreSale> sales = reader.GetEsoGuildStoreSales(filter);
-
-                // Assert
-                if (expectedSaleCount != sales.Count)
-                {
-                    Assert.Fail("Expected {0} sales in {1}, but found {2}", expectedSaleCount, testFileName, sales.Count);
-                }
-            }
-        }
-        
-        /// <summary>
-        ///     Validate that the synchronous GetEsoGuildStoreSales() method returns the expected number of sales when run on
-        ///     TestFile00 with a timestamp filter.
-        /// </summary>
-        [TestMethod]
-        public void MMSavedVariableReader_GetEsoGuildStoreSales_GuildTimestampFilter()
-        {
-            for (int i = 0; i < 16; i++)
-            {
-                string testFileName = string.Format(TestFilePathFormat, i);
-                // Arrange
-                var reader = new MMSavedVariableReader(testFileName);
-                // Choose a recent enough timestamp that the prefix will have no records with prefixes higher than it.
-                // This allows us to do a straight up grep search by timestamp prefix to get the expected count.
-                var filter = new EsoGuildStoreSaleFilter
-                {
-                    Guild = "Ethereal Traders Union",
-                    Timestamp = 1424900000
-                };
-                string timestampSubstring = string.Format("[\"timestamp\"] = {0}", filter.Timestamp/100000);
-                string guildSubstring = string.Format("[\"guild\"] = \"{0}\"", filter.Guild);
-                int expectedSaleCount = CountLuaTablesWithLines(testFileName, timestampSubstring, guildSubstring);
 
                 // Act
                 List<EsoGuildStoreSale> sales = reader.GetEsoGuildStoreSales(filter);
@@ -183,7 +181,6 @@ namespace MMPlus.Test
                         {
                             continue;
                         }
-
 
 
                         if (substrings.Length == 0)

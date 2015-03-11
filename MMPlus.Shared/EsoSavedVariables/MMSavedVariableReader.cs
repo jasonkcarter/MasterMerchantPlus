@@ -36,9 +36,33 @@ namespace MMPlus.Shared.EsoSavedVariables
         /// <returns>The list of sales retreived.</returns>
         public List<EsoGuildStoreSale> GetEsoGuildStoreSales(params EsoGuildStoreSaleFilter[] filters)
         {
-            if (FilePath == null)
+            // Holds the sales discovered in the saved variables file
+            var sales = new List<EsoGuildStoreSale>();
+
+            if (!ProcessEsoGuildStoreSales(sales.Add, filters))
             {
                 return null;
+            }
+
+            return sales;
+        }
+
+        /// <summary>
+        ///     Asynchronously gets a list of Elder Scrolls Online guild store sales items contained within FilePath.
+        /// </summary>
+        /// <param name="filters">(optional) If set, only returns sales that match the give filters.</param>
+        /// <returns>An asynchronous task containing the list of sales retreived.</returns>
+        public Task<List<EsoGuildStoreSale>> GetEsoGuildStoreSalesAsync(params EsoGuildStoreSaleFilter[] filters)
+        {
+            return Task<List<EsoGuildStoreSale>>.Factory.StartNew(() => GetEsoGuildStoreSales(filters));
+        }
+
+        public bool ProcessEsoGuildStoreSales(Action<EsoGuildStoreSale> onSaleFound,
+            params EsoGuildStoreSaleFilter[] filters)
+        {
+            if (FilePath == null)
+            {
+                return false;
             }
 
             // Set a default filter to not filter anything
@@ -47,9 +71,6 @@ namespace MMPlus.Shared.EsoSavedVariables
                 filters = new EsoGuildStoreSaleFilter[1];
                 filters[0] = new EsoGuildStoreSaleFilter();
             }
-
-            // Holds the sales discovered in the saved variables file
-            var sales = new List<EsoGuildStoreSale>();
 
             // Set up our custom Lua listener for extracting sale data
             var listener = new MMLuaListener();
@@ -66,12 +87,14 @@ namespace MMPlus.Shared.EsoSavedVariables
                 {
                     // Make sure the sale matches at least one of the filters, then add it to the list
                     var sale = saleFoundArgs.Sale;
-                    if (filters.Where(filter => string.IsNullOrEmpty(filter.Guild)
-                                                || filter.Guild.Equals(sale.Guild,
+                    if (filters.Where(filter => string.IsNullOrEmpty(filter.GuildName)
+                                                || filter.GuildName.Equals(sale.Guild,
                                                     StringComparison.CurrentCultureIgnoreCase))
-                        .Any(filter => filter.Timestamp == null || sale.TimestampInt >= filter.Timestamp))
+                        .Any(filter => (filter.TimestampMinimum == null || sale.TimestampInt >= filter.TimestampMinimum)
+                                       &&
+                                       (filter.TimestampMaximum == null || sale.TimestampInt <= filter.TimestampMaximum)))
                     {
-                        sales.Add(sale);
+                        onSaleFound(sale);
                     }
                 };
                 parser.AddParseListener(listener);
@@ -80,17 +103,7 @@ namespace MMPlus.Shared.EsoSavedVariables
                 parser.exp();
             }
 
-            return sales;
-        }
-
-        /// <summary>
-        ///     Asynchronously gets a list of Elder Scrolls Online guild store sales items contained within FilePath.
-        /// </summary>
-        /// <param name="filters">(optional) If set, only returns sales that match the give filters.</param>
-        /// <returns>An asynchronous task containing the list of sales retreived.</returns>
-        public Task<List<EsoGuildStoreSale>> GetEsoGuildStoreSalesAsync(params EsoGuildStoreSaleFilter[] filters)
-        {
-            return Task<List<EsoGuildStoreSale>>.Factory.StartNew(() => GetEsoGuildStoreSales(filters));
+            return true;
         }
     }
 }
