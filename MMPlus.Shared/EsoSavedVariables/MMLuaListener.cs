@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using Lua;
 using MMPlus.Shared.Model;
 
@@ -10,6 +12,8 @@ namespace MMPlus.Shared.EsoSavedVariables
     // ReSharper disable once InconsistentNaming
     public class MMLuaListener : LuaBaseListener
     {
+        private readonly List<EsoSale> _currentItemSales = new List<EsoSale>();
+
         /// <summary>
         ///     The unique id for the base item (without special traits) defined in the current scope.
         /// </summary>
@@ -26,6 +30,11 @@ namespace MMPlus.Shared.EsoSavedVariables
         public event EventHandler<EsoGuildStoreSaleEventArgs> SaleFound;
 
         /// <summary>
+        ///     Gets the name of the account associated with the current parse tree scope.
+        /// </summary>
+        public string CurrentAccountName { get; private set; }
+
+        /// <summary>
         ///     Gets the instance of the item currently being populated with data from the parse tree.
         /// </summary>
         public EsoItem CurrentItem { get; private set; }
@@ -34,11 +43,6 @@ namespace MMPlus.Shared.EsoSavedVariables
         ///     Gets the instance of the sale currently being populated with data from the parse tree.
         /// </summary>
         public EsoSale CurrentSale { get; private set; }
-
-        /// <summary>
-        /// Gets the name of the account associated with the current parse tree scope.
-        /// </summary>
-        public string CurrentAccountName { get; private set; }
 
         /// <summary>
         ///     Enter a parse tree produced by <see cref="LuaParser.tableconstructor" />.
@@ -84,6 +88,7 @@ namespace MMPlus.Shared.EsoSavedVariables
                             BaseId = _currentItemBaseId,
                             ItemIndex = field.Name
                         };
+                        _currentItemSales.Clear();
                     }
                     break;
                 case MMSavedVariableScope.EsoGuildStoreSale:
@@ -96,9 +101,8 @@ namespace MMPlus.Shared.EsoSavedVariables
                     {
                         CurrentSale = new EsoSale
                         {
-                            //Submitter = CurrentAccountName
+                            Submitter = CurrentAccountName
                         };
-                        CurrentSale.Set(CurrentItem);
                     }
                     break;
             }
@@ -146,20 +150,30 @@ namespace MMPlus.Shared.EsoSavedVariables
             switch (_currentScope)
             {
                 case MMSavedVariableScope.EsoGuildStoreSale:
-
                     // Exiting a sale scope
                     if (CurrentSale != null)
                     {
-                        // Extract the item's name from the sale's ItemLink property, since it's not stored in the item scope as a field.
-                        if (CurrentItem != null && string.IsNullOrEmpty(CurrentItem.Name))
+                        _currentItemSales.Add(CurrentSale);
+                    }
+                    break;
+                case MMSavedVariableScope.EsoItem:
+                    if (CurrentItem != null && _currentItemSales.Count > 0)
+                    {
+                        // Extract the item's name from the last sale's ItemLink property, since it's not stored in the item scope as a field.
+                        if (string.IsNullOrEmpty(CurrentItem.Name))
                         {
-                            CurrentItem.Name = CurrentSale.GetItemNameFromLink();
+                            EsoSale lastSale = _currentItemSales.Last();
+                            CurrentItem.Name = lastSale.GetItemNameFromLink();
                         }
 
                         // Report the sale.
                         if (SaleFound != null)
                         {
-                            SaleFound(this, new EsoGuildStoreSaleEventArgs {Sale = CurrentSale});
+                            foreach (var sale in _currentItemSales)
+                            {
+                                sale.Set(CurrentItem);
+                                SaleFound(this, new EsoGuildStoreSaleEventArgs {Sale = sale});
+                            }
                         }
                     }
                     break;

@@ -1,0 +1,12 @@
+﻿{0} =
+{{
+    ["Default"] = 
+    {{
+        ["{1}"] = 
+        {{
+            ["$AccountWide"] = 
+            {{
+                ["ItemsConverted"] = true,
+                ["version"] = 1,
+                ["SalesData"] = 
+                {{
