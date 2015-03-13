@@ -73,7 +73,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\MMPlus.Shared\MMPlus.Shared.csproj">
+    <ProjectReference Include="..\..\MMPlus.Shared\MMPlus.Shared.csproj">
       <Project>{0262A48F-8C78-4543-B996-3D46AB755994}</Project>
       <Name>MMPlus.Shared</Name>
     </ProjectReference>
