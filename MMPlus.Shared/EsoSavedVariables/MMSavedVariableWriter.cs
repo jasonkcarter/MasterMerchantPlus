@@ -26,7 +26,7 @@ namespace MMPlus.Shared.EsoSavedVariables
             {
                 if (_itemFooter == null)
                 {
-                    _itemFooter = File.ReadAllText("ItemFooter.txt");
+                    _itemFooter = File.ReadAllText(".\\Templates\\MMDataItemFooter.txt");
                 }
                 return _itemFooter;
             }
@@ -38,7 +38,7 @@ namespace MMPlus.Shared.EsoSavedVariables
             {
                 if (_itemHeader == null)
                 {
-                    _itemHeader = File.ReadAllText("ItemHeader.txt");
+                    _itemHeader = File.ReadAllText(".\\Templates\\MMDataItemHeader.txt");
                 }
                 return _itemHeader;
             }
@@ -50,7 +50,7 @@ namespace MMPlus.Shared.EsoSavedVariables
             {
                 if (_saleFooter == null)
                 {
-                    _saleFooter = File.ReadAllText("SaleFooter.txt");
+                    _saleFooter = File.ReadAllText(".\\Templates\\MMDataSaleFooter.txt");
                 }
                 return _saleFooter;
             }
@@ -62,7 +62,7 @@ namespace MMPlus.Shared.EsoSavedVariables
             {
                 if (_saleHeader == null)
                 {
-                    _saleHeader = File.ReadAllText("SaleHeader.txt");
+                    _saleHeader = File.ReadAllText(".\\Templates\\MMDataSaleHeader.txt");
                 }
                 return _saleHeader;
             }
@@ -74,7 +74,7 @@ namespace MMPlus.Shared.EsoSavedVariables
             {
                 if (_saleTemplate == null)
                 {
-                    _saleTemplate = File.ReadAllText("Sale.txt");
+                    _saleTemplate = File.ReadAllText(".\\Templates\\MMDataSale.txt");
                 }
                 return _saleTemplate;
             }
@@ -140,13 +140,13 @@ namespace MMPlus.Shared.EsoSavedVariables
 
         private void WriteFooter()
         {
-            string footer = File.ReadAllText("Footer.txt");
+            string footer = File.ReadAllText(".\\Templates\\MMDataFooter.txt");
             _writer.Write(footer);
         }
 
         private void WriteHeader(string variableName, string accountName)
         {
-            string format = File.ReadAllText("Header.txt");
+            string format = File.ReadAllText(".\\Templates\\MMDataHeader.txt");
             string header = string.Format(format, variableName, accountName);
             _writer.Write(header);
         }
