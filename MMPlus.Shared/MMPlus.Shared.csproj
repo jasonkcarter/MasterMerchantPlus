@@ -78,7 +78,6 @@
     <Compile Include="Data\TableStorageRepository.cs" />
     <Compile Include="EsoSavedVariables\EsoGuildStoreSaleEventArgs.cs" />
     <Compile Include="EsoSavedVariables\EsoSaleFilter.cs" />
-    <Compile Include="EsoSavedVariables\MMLuaListener.cs" />
     <Compile Include="EsoSavedVariables\MMSavedVariableReader.cs" />
     <Compile Include="EsoSavedVariables\MMSavedVariableScope.cs" />
     <Compile Include="EsoSavedVariables\MMSavedVariableWriter.cs" />
@@ -90,12 +89,6 @@
     <Compile Include="Model\EsoItemTrait.cs" />
     <Compile Include="Data\ISemiDelimited.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Lua\Lua.csproj">
-      <Project>{c1e677e4-7d46-4e06-9227-d17847299f88}</Project>
-      <Name>Lua</Name>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

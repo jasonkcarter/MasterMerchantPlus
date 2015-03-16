@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Globalization;
 using System.Text;
-using Lua;
 using Microsoft.WindowsAzure.Storage.Table;
 using MMPlus.Shared.Data;
 
@@ -412,48 +411,46 @@ namespace MMPlus.Shared.Model
         /// <summary>
         ///     Loads the value from a given Lua table field into it's corresponding property, if one exists.
         /// </summary>
-        /// <param name="field">The Lua table field containing the property and value to set.</param>
-        public void Set(LuaTableField field)
+        public void Set(string fieldKey, string fieldValue)
         {
-            if (field == null) return;
-            switch (field.Name)
+            switch (fieldKey)
             {
                 case "buyer":
-                    Buyer = field.Value;
+                    Buyer = fieldValue;
                     break;
                 case "guild":
-                    GuildName = field.Value;
+                    GuildName = fieldValue;
                     break;
                 case "seller":
-                    Seller = field.Value;
+                    Seller = fieldValue;
                     break;
                 case "itemLink":
-                    ItemLink = field.Value;
+                    ItemLink = fieldValue;
                     break;
                 case "price":
                     int price;
-                    if (int.TryParse(field.Value, out price))
+                    if (int.TryParse(fieldValue, out price))
                     {
                         Price = price;
                     }
                     break;
                 case "wasKiosk":
                     bool wasKiosk;
-                    if (bool.TryParse(field.Value, out wasKiosk))
+                    if (bool.TryParse(fieldValue, out wasKiosk))
                     {
                         WasKiosk = wasKiosk;
                     }
                     break;
                 case "quant":
                     int quantity;
-                    if (int.TryParse(field.Value, out quantity))
+                    if (int.TryParse(fieldValue, out quantity))
                     {
                         Quantity = quantity;
                     }
                     break;
                 case "timestamp":
                     int timestamp;
-                    if (int.TryParse(field.Value, out timestamp))
+                    if (int.TryParse(fieldValue, out timestamp))
                     {
                         SaleTimestamp = timestamp;
                     }

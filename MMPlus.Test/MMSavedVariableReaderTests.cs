@@ -41,7 +41,7 @@ namespace MMPlus.Test
         public const string TestFilePathFormat = "MM{0:D2}Data.lua";
 
         /// <summary>
-        ///     Validate that the synchronous GetEsoGuildStoreSales() method returns the expected number of sales when run on
+        ///     Validate that the synchronous GetEsoSales() method returns the expected number of sales when run on
         ///     TestFile00 with a timestamp filter.
         /// </summary>
         [TestMethod]
@@ -59,14 +59,13 @@ namespace MMPlus.Test
                     GuildName = "Ethereal Traders Union",
                     TimestampMinimum = 1424900000
                 };
+                reader.Filters = new[] {filter};
                 string timestampSubstring = string.Format("[\"timestamp\"] = {0}", filter.TimestampMinimum/100000);
                 string guildSubstring = string.Format("[\"guild\"] = \"{0}\"", filter.GuildName);
                 int expectedSaleCount = CountLuaTablesWithLines(testFileName, timestampSubstring, guildSubstring);
 
                 // Act
-                // TODO: Performance tune. Possibly ditch full Lua parsing. 
-                // TODO: Full data file scan is fine to take a long time, but filtered scans should be faster than this currently performs.
-                List<EsoSale> sales = reader.GetEsoGuildStoreSales(filter);
+                List<EsoSale> sales = reader.GetEsoSales();
 
                 // Assert
                 if (expectedSaleCount != sales.Count)
@@ -77,7 +76,7 @@ namespace MMPlus.Test
         }
 
         /// <summary>
-        ///     Validate that the synchronous GetEsoGuildStoreSales() method returns the expected number of sales when run on
+        ///     Validate that the synchronous GetEsoSales() method returns the expected number of sales when run on
         ///     TestFile00 with no filters.
         /// </summary>
         [TestMethod]
@@ -91,7 +90,7 @@ namespace MMPlus.Test
                 int expectedSaleCount = CountLuaTablesWithLines(testFileName);
 
                 // Act
-                List<EsoSale> sales = reader.GetEsoGuildStoreSales();
+                List<EsoSale> sales = reader.GetEsoSales();
 
                 // Assert
                 if (expectedSaleCount != sales.Count)
@@ -102,7 +101,7 @@ namespace MMPlus.Test
         }
 
         /// <summary>
-        ///     Validate that the synchronous GetEsoGuildStoreSales() method returns the expected number of sales when run on
+        ///     Validate that the synchronous GetEsoSales() method returns the expected number of sales when run on
         ///     TestFile00 with a timestamp filter.
         /// </summary>
         [TestMethod]
@@ -119,11 +118,12 @@ namespace MMPlus.Test
                 {
                     TimestampMinimum = 1424900000
                 };
+                reader.Filters = new[] {filter};
                 string searchString = string.Format("[\"timestamp\"] = {0}", filter.TimestampMinimum/100000);
                 int expectedSaleCount = CountLuaTablesWithLines(testFileName, searchString);
 
                 // Act
-                List<EsoSale> sales = reader.GetEsoGuildStoreSales(filter);
+                List<EsoSale> sales = reader.GetEsoSales();
 
                 // Assert
                 if (expectedSaleCount != sales.Count)

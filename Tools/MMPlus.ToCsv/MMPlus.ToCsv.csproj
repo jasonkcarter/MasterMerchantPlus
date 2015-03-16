@@ -80,10 +80,6 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\Lua\Lua.csproj">
-      <Project>{c1e677e4-7d46-4e06-9227-d17847299f88}</Project>
-      <Name>Lua</Name>
-    </ProjectReference>
     <ProjectReference Include="..\..\MMPlus.Shared\MMPlus.Shared.csproj">
       <Project>{0262a48f-8c78-4543-b996-3d46ab755994}</Project>
       <Name>MMPlus.Shared</Name>

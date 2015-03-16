@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Linq;
-using Lua;
 using Microsoft.WindowsAzure.Storage.Table;
 
 namespace MMPlus.Shared.Model
@@ -155,14 +154,12 @@ namespace MMPlus.Shared.Model
         /// <summary>
         ///     Loads the value from a given Lua table field into it's corresponding property, if one exists.
         /// </summary>
-        /// <param name="field">The Lua table field containing the property and value to set.</param>
-        internal void Set(LuaTableField field)
+        internal void Set(string fieldKey, string fieldValue)
         {
-            if (field == null) return;
-            switch (field.Name)
+            switch (fieldKey)
             {
                 case "itemIcon":
-                    ItemIcon = field.Value;
+                    ItemIcon = fieldValue;
                     break;
             }
         }
