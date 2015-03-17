@@ -78,6 +78,7 @@
     <Compile Include="Data\TableStorageRepository.cs" />
     <Compile Include="EsoSavedVariables\EsoGuildStoreSaleEventArgs.cs" />
     <Compile Include="EsoSavedVariables\EsoSaleFilter.cs" />
+    <Compile Include="EsoSavedVariables\MMSavedVariableIndex.cs" />
     <Compile Include="EsoSavedVariables\MMSavedVariableReader.cs" />
     <Compile Include="EsoSavedVariables\MMSavedVariableScope.cs" />
     <Compile Include="EsoSavedVariables\MMSavedVariableWriter.cs" />

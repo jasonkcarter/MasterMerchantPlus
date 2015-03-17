@@ -26,7 +26,8 @@ namespace MMPlus.MergeData
             var sortedSales = new SortedSet<EsoSale>(new MMFileSaleComparer());
             Console.WriteLine("Reading sales from {0}...", inputFileName1);
             var reader = new MMSavedVariableReader(inputFileName1);
-            reader.ProcessEsoGuildStoreSales(sale => sortedSales.Add(sale));
+            var index = new MMSavedVariableIndex();
+            reader.ProcessEsoGuildStoreSales(sale => sortedSales.Add(sale), index);
             Console.WriteLine("Reading sales from {0}...", inputFileName2);
             reader = new MMSavedVariableReader(inputFileName2);
             reader.ProcessEsoGuildStoreSales(sale =>
@@ -35,7 +36,7 @@ namespace MMPlus.MergeData
                 {
                     sortedSales.Add(sale);
                 }
-            });
+            }, index);
             Console.WriteLine("Writing combined sales to {0} for account {1}...", outputFileName, accountName);
             using (FileStream stream = File.Open(outputFileName, FileMode.Create))
             {

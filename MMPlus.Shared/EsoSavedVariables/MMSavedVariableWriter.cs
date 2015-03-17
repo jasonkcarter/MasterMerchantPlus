@@ -8,6 +8,7 @@ namespace MMPlus.Shared.EsoSavedVariables
     // ReSharper disable once InconsistentNaming
     public class MMSavedVariableWriter : IDisposable
     {
+        private readonly string _templatesDirectory;
         private readonly StreamWriter _writer;
         private string _itemFooter;
         private string _itemHeader;
@@ -18,6 +19,7 @@ namespace MMPlus.Shared.EsoSavedVariables
         public MMSavedVariableWriter(Stream stream)
         {
             _writer = new StreamWriter(stream);
+            _templatesDirectory = File.Exists(".\\Templates\\MMDataHeader.txt") ? ".\\Templates" : ".";
         }
 
         private string ItemFooter
@@ -26,7 +28,7 @@ namespace MMPlus.Shared.EsoSavedVariables
             {
                 if (_itemFooter == null)
                 {
-                    _itemFooter = File.ReadAllText(".\\Templates\\MMDataItemFooter.txt");
+                    _itemFooter = File.ReadAllText(Path.Combine(_templatesDirectory, "MMDataItemFooter.txt"));
                 }
                 return _itemFooter;
             }
@@ -38,7 +40,7 @@ namespace MMPlus.Shared.EsoSavedVariables
             {
                 if (_itemHeader == null)
                 {
-                    _itemHeader = File.ReadAllText(".\\Templates\\MMDataItemHeader.txt");
+                    _itemHeader = File.ReadAllText(Path.Combine(_templatesDirectory, "MMDataItemHeader.txt"));
                 }
                 return _itemHeader;
             }
@@ -50,7 +52,7 @@ namespace MMPlus.Shared.EsoSavedVariables
             {
                 if (_saleFooter == null)
                 {
-                    _saleFooter = File.ReadAllText(".\\Templates\\MMDataSaleFooter.txt");
+                    _saleFooter = File.ReadAllText(Path.Combine(_templatesDirectory, "MMDataSaleFooter.txt"));
                 }
                 return _saleFooter;
             }
@@ -62,7 +64,7 @@ namespace MMPlus.Shared.EsoSavedVariables
             {
                 if (_saleHeader == null)
                 {
-                    _saleHeader = File.ReadAllText(".\\Templates\\MMDataSaleHeader.txt");
+                    _saleHeader = File.ReadAllText(Path.Combine(_templatesDirectory, "MMDataSaleHeader.txt"));
                 }
                 return _saleHeader;
             }
@@ -74,7 +76,7 @@ namespace MMPlus.Shared.EsoSavedVariables
             {
                 if (_saleTemplate == null)
                 {
-                    _saleTemplate = File.ReadAllText(".\\Templates\\MMDataSale.txt");
+                    _saleTemplate = File.ReadAllText(Path.Combine(_templatesDirectory, "MMDataSale.txt"));
                 }
                 return _saleTemplate;
             }
@@ -140,13 +142,13 @@ namespace MMPlus.Shared.EsoSavedVariables
 
         private void WriteFooter()
         {
-            string footer = File.ReadAllText(".\\Templates\\MMDataFooter.txt");
+            string footer = File.ReadAllText(Path.Combine(_templatesDirectory, "MMDataFooter.txt"));
             _writer.Write(footer);
         }
 
         private void WriteHeader(string variableName, string accountName)
         {
-            string format = File.ReadAllText(".\\Templates\\MMDataHeader.txt");
+            string format = File.ReadAllText(Path.Combine(_templatesDirectory, "MMDataHeader.txt"));
             string header = string.Format(format, variableName, accountName);
             _writer.Write(header);
         }

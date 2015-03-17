@@ -9,7 +9,7 @@ namespace MMPlus.Shared.Model
     /// <summary>
     ///     Represents a guild store sale event in Elder Scrolls Online.
     /// </summary>
-    public class EsoSale : TableEntity, ISemiDelimited
+    public class EsoSale : TableEntity, ISemiDelimited, IComparable
     {
         /// <summary>
         ///     Gets or sets a value indicating whether the RowKey property is automatically refreshed whenever its component
@@ -320,6 +320,21 @@ namespace MMPlus.Shared.Model
                     GenerateRowKey();
                 }
             }
+        }
+
+        public int CompareTo(object obj)
+        {
+            var other = obj as EsoSale;
+            if (other == null)
+            {
+                return 1;
+            }
+            int result = String.Compare(PartitionKey, other.PartitionKey, StringComparison.Ordinal);
+            if (result != 0)
+            {
+                return result;
+            }
+            return String.Compare(RowKey, other.RowKey, StringComparison.InvariantCultureIgnoreCase);
         }
 
         public virtual void GenerateRowKey()

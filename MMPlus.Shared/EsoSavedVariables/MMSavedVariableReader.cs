@@ -30,10 +30,15 @@ namespace MMPlus.Shared.EsoSavedVariables
         /// </summary>
         private string _currentItemBaseId;
 
+        private long _currentItemSaleCount;
+        private long _currentItemSalesStartPosition;
+
         /// <summary>
         ///     The current state of the parse tree walker's position in terms of the data represented.
         /// </summary>
         private MMSavedVariableScope _currentScope;
+
+        private long _currentStreamPosition = -1;
 
         private TokenType _currentTokenType = TokenType.None;
         private StringBuilder _currentTokenValue = new StringBuilder();
@@ -66,12 +71,6 @@ namespace MMPlus.Shared.EsoSavedVariables
         ///     The fully-qualified file system path of the Master Merchant saved variables file to read.
         /// </summary>
         public string FilePath { get; set; }
-
-        /// <summary>
-        ///     Gets or sets the criteria used by member functions to determine which sale records from the data file to
-        ///     return/process.
-        /// </summary>
-        public EsoSaleFilter[] Filters { get; set; }
 
 
         public void EnterTableconstructor()
@@ -107,8 +106,33 @@ namespace MMPlus.Shared.EsoSavedVariables
                         _currentItemSales.Clear();
                     }
                     break;
+                case MMSavedVariableScope.SalesData:
+                    _currentItemSalesStartPosition = _currentStreamPosition;
+                    _currentItemSaleCount = 0;
+                    _currentItemSalesDataIsReversed = false;
+                    break;
                 case MMSavedVariableScope.EsoGuildStoreSale:
 
+                    if (!long.TryParse(_currentFieldKey, out _currentItemSaleIndex))
+                    {
+                        _currentItemSaleIndex = -1;
+                    }
+
+                    if (_currentItemSaleIndex > 0 && _currentItemSaleCount == 0)
+                    {
+                        // This is a reverse order item, so don't skip ahead until after we see new sales
+                        _currentItemSalesDataIsReversed = true;
+                    }
+
+                    if (_currentItemSalesDataIsReversed)
+                    {
+                        if(_currentItemSaleIndex == )
+                    }
+
+                    if (_currentItemSaleIndex > (_currentItemSaleCount - 1))
+                    {
+                        _currentItemSaleCount = _currentItemSaleIndex + 1;
+                    }
                     if (CurrentItem == null)
                     {
                         CurrentSale = null;
@@ -123,6 +147,8 @@ namespace MMPlus.Shared.EsoSavedVariables
                     break;
             }
         }
+
+        private bool _currentItemSalesDataIsReversed = false;
 
         public void ExitField()
         {
@@ -143,7 +169,9 @@ namespace MMPlus.Shared.EsoSavedVariables
             }
         }
 
-        public void ExitTableconstructor(Action<EsoSale> onSaleFound)
+        private long _currentItemSaleIndex = -1;
+
+        public void ExitTableconstructor(Action<EsoSale> onSaleFound, MMSavedVariableIndex index)
         {
             switch (_currentScope)
             {
@@ -169,24 +197,36 @@ namespace MMPlus.Shared.EsoSavedVariables
                         {
                             foreach (var sale in _currentItemSales)
                             {
-                                // Make sure the sale matches at least one of the filters, then add it to the list
-                                if (Filters.Where(filter => string.IsNullOrEmpty(filter.GuildName)
-                                                            || filter.GuildName.Equals(sale.GuildName,
-                                                                StringComparison.CurrentCultureIgnoreCase))
-                                    .Any(
-                                        filter =>
-                                            (filter.TimestampMinimum == null ||
-                                             sale.SaleTimestamp >= filter.TimestampMinimum)
-                                            &&
-                                            (filter.TimestampMaximum == null ||
-                                             sale.SaleTimestamp <= filter.TimestampMaximum)))
-                                {
-                                    sale.Set(CurrentItem);
-                                    onSaleFound( sale );
-                                }
+                                sale.Set(CurrentItem);
+                                onSaleFound(sale);
                             }
                         }
                     }
+                    break;
+                case MMSavedVariableScope.SalesData:
+
+                    if (CurrentItem != null)
+                    {
+                        long length = _currentStreamPosition - _currentItemSalesStartPosition;
+                        int itemIndex =
+                            index.FindIndex(
+                                x => x.ItemBaseId == CurrentItem.BaseId && x.ItemIndex == CurrentItem.ItemIndex);
+                        if (itemIndex > -1)
+                        {
+                            index[itemIndex].Length = length;
+                            index[itemIndex].SaleCount = _currentItemSaleCount;
+                        }
+                        else
+                        {
+                            var entry =
+                                new MMSavedVariableIndex.Entry(CurrentItem.BaseId, CurrentItem.ItemIndex, length,
+                                    _currentItemSaleCount);
+                            index.Add(entry);
+                        }
+                    }
+                    _currentItemSalesStartPosition = -1;
+                    _currentItemSaleCount = 0;
+                    _currentItemSaleIndex = -1;
                     break;
             }
             _currentScope--;
@@ -196,21 +236,21 @@ namespace MMPlus.Shared.EsoSavedVariables
         ///     Asynchronously gets a list of Elder Scrolls Online guild store sales items contained within FilePath.
         /// </summary>
         /// <returns>An asynchronous task containing the list of sales retreived.</returns>
-        public Task<List<EsoSale>> GetEsoGuildStoreSalesAsync()
+        public Task<List<EsoSale>> GetEsoGuildStoreSalesAsync(MMSavedVariableIndex index)
         {
-            return Task<List<EsoSale>>.Factory.StartNew(GetEsoSales);
+            return Task<List<EsoSale>>.Factory.StartNew(() => GetEsoSales(index));
         }
 
         /// <summary>
         ///     Gets a list of Elder Scrolls Online guild store sales items contained within FilePath.
         /// </summary>
         /// <returns>The list of sales retreived.</returns>
-        public List<EsoSale> GetEsoSales()
+        public List<EsoSale> GetEsoSales(MMSavedVariableIndex index)
         {
             // Holds the sales discovered in the saved variables file
             var sales = new List<EsoSale>();
 
-            if (!ProcessEsoGuildStoreSales(sales.Add))
+            if (!ProcessEsoGuildStoreSales(sales.Add, index))
             {
                 return null;
             }
@@ -218,18 +258,13 @@ namespace MMPlus.Shared.EsoSavedVariables
             return sales;
         }
 
-        public bool ProcessEsoGuildStoreSales(Action<EsoSale> onSaleFound)
+        public bool ProcessEsoGuildStoreSales(Action<EsoSale> onSaleFound, MMSavedVariableIndex index)
         {
+            Reset();
+
             if (FilePath == null)
             {
                 return false;
-            }
-
-            // Set a default filter to not filter anything
-            if (Filters == null || Filters.Length == 0)
-            {
-                Filters = new EsoSaleFilter[1];
-                Filters[0] = new EsoSaleFilter();
             }
 
             // Open the saved variables file for reading
@@ -243,6 +278,7 @@ namespace MMPlus.Shared.EsoSavedVariables
                     {
                         for (int i = 0; i < bytesRead; i++)
                         {
+                            _currentStreamPosition++;
                             char c = buffer[i];
                             switch (_currentTokenType)
                             {
@@ -261,7 +297,7 @@ namespace MMPlus.Shared.EsoSavedVariables
                                     else if (c == TokenTableExit)
                                     {
                                         _currentTokenType = TokenType.TableConstructor;
-                                        ExitTableconstructor(onSaleFound);
+                                        ExitTableconstructor(onSaleFound, index);
                                     }
                                     break;
                                 case TokenType.FieldKey:
@@ -305,7 +341,7 @@ namespace MMPlus.Shared.EsoSavedVariables
                                         _currentTokenValue = new StringBuilder();
                                         ExitField();
                                         _currentTokenType = TokenType.TableConstructor;
-                                        ExitTableconstructor(onSaleFound);
+                                        ExitTableconstructor(onSaleFound, index);
                                         break;
                                     }
                                     if (_currentTokenValue[0] == TokenNormalString)
@@ -354,6 +390,20 @@ namespace MMPlus.Shared.EsoSavedVariables
                 text = text.Substring(1, text.Length - 2);
             }
             return text;
+        }
+
+        private void Reset()
+        {
+            _currentScope = MMSavedVariableScope.None;
+            _currentTokenType = TokenType.None;
+            _currentTokenValue = new StringBuilder();
+            _currentItemBaseId = null;
+            _currentItemSales.Clear();
+            _currentFieldKey = null;
+            _currentFieldValue = null;
+            _currentStreamPosition = -1;
+            _currentItemSaleCount = 0;
+            _currentItemSalesStartPosition = -1;
         }
 
         private enum TokenType

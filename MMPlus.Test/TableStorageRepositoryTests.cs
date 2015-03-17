@@ -16,28 +16,6 @@ namespace MMPlus.Test
     {
         private const string ConnectionString = "UseDevelopmentStorage=true;";
 
-        private string[] _items =
-        {
-            "45109;1:0:1:13:0;|H0:item:45109:30:1:0:0:0:0:0:0:0:0:0:0:0:0:7:0:0:0:10000:0|hhomespun sash^p|h",
-            "47662;36:0:1:0:0;|H0:item:47662:20:36:0:0:0:0:0:0:0:0:0:0:0:0:3:0:0:0:10000:0|hWhitestrake's Girdle|h"
-        };
-
-        private string[] _guilds =
-        {
-            "Akaveri Imports",
-            "Bal-mart",
-            "Bleakrock Barter Co",
-            "Craftoholics",
-            "Dominant Dominion",
-            "Dominion Imperial Guard",
-            "East Empire Company",
-            "Elder Scrolls Exchange",
-            "Ethereal Traders Union",
-            "Ethereal Traders Union II",
-            "Fangs of Ironglaive",
-            "Gold Dragons",
-            "Iron Bank of Bravos"
-        };
 
         [TestMethod]
         public void TableStorageRepository_FindByPartition()
@@ -53,7 +31,7 @@ namespace MMPlus.Test
                 for (int i = 0; i < saleCount; i++)
                 {
                     // Arrange
-                    var sale = CreateRandomSale();
+                    var sale = Utility.CreateRandomSale();
                     data.InsertOrReplace(sale);
                     List<EsoSale> partition;
                     if (!salesByPartition.TryGetValue(sale.TimestampId, out partition))
@@ -97,32 +75,6 @@ namespace MMPlus.Test
                 // Clean up
                 data.RemoveTable<EsoSale>();
             }
-        }
-
-        private EsoSale CreateRandomSale()
-        {
-            string randomGuild = _guilds[new Random().Next(_guilds.Length)];
-            int randomQuantity = new Random().Next(100) + 1;
-            int randomPrice = new Random().Next(10000) + 1;
-            int randomTimestamp = new Random().Next(10) + 1425340800;
-            string[] randomItemParts = _items[new Random().Next(_items.Length)].Split(';');
-            string itemBaseId = randomItemParts[0];
-            string itemIndex = randomItemParts[1];
-            string itemLink = randomItemParts[2];
-            var sale = new EsoSale(false)
-            {
-                GuildName = randomGuild,
-                Buyer = "@" + Guid.NewGuid().ToString("N"),
-                Seller = "@" + Guid.NewGuid().ToString("N"),
-                ItemBaseId = itemBaseId,
-                ItemIndex = itemIndex,
-                ItemLink = itemLink,
-                Quantity = randomQuantity,
-                Price = randomPrice,
-                SaleTimestamp = randomTimestamp
-            };
-            sale.GenerateRowKey();
-            return sale;
         }
     }
 }

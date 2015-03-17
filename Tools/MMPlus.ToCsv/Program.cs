@@ -39,6 +39,7 @@ namespace MMPlus.ToCsv
                         string inFile = string.Format(savedVarPathTemplate, i);
                         Console.WriteLine("Reading sales from {0}...", inFile);
                         var reader = new MMSavedVariableReader(inFile);
+                        var index = new MMSavedVariableIndex();
                         reader.ProcessEsoGuildStoreSales(
                             sale =>
                             {
@@ -48,7 +49,7 @@ namespace MMPlus.ToCsv
                                     sale.Seller);
                                 // ReSharper disable once AccessToDisposedClosure
                                 writer.Write(line);
-                            });
+                            }, index);
                     }
                 }
             }

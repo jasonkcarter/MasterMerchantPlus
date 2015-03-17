@@ -2,22 +2,23 @@
 <TestSettings name="MMPlus" id="510d2ee9-baed-4eb1-a843-de38fc80a275" xmlns="http://microsoft.com/schemas/VisualStudio/TeamTest/2010">
   <Description>These are default test settings for a local test run.</Description>
   <Deployment>
+    <DeploymentItem filename="MMPlus.Test\bin\Debug\MM14Data.lua" />
+    <DeploymentItem filename="MMPlus.Test\bin\Debug\MM15Data.lua" />
+    <DeploymentItem filename="MMPlus.Test\bin\Debug\MM10Data.lua" />
+    <DeploymentItem filename="MMPlus.Test\bin\Debug\MM05Data.lua" />
+    <DeploymentItem filename="MMPlus.Test\bin\Debug\MM00Data.lua" />
+    <DeploymentItem filename="MMPlus.Test\bin\Debug\MM11Data.lua" />
     <DeploymentItem filename="MMPlus.Test\bin\Debug\MM07Data.lua" />
     <DeploymentItem filename="MMPlus.Test\bin\Debug\MM01Data.lua" />
-    <DeploymentItem filename="MMPlus.Test\bin\Debug\MM15Data.lua" />
-    <DeploymentItem filename="MMPlus.Test\bin\Debug\MM14Data.lua" />
-    <DeploymentItem filename="MMPlus.Test\bin\Debug\MM08Data.lua" />
-    <DeploymentItem filename="MMPlus.Test\bin\Debug\MM02Data.lua" />
-    <DeploymentItem filename="MMPlus.Test\bin\Debug\MM12Data.lua" />
-    <DeploymentItem filename="MMPlus.Test\bin\Debug\MM00Data.lua" />
-    <DeploymentItem filename="MMPlus.Test\bin\Debug\MM03Data.lua" />
     <DeploymentItem filename="MMPlus.Test\bin\Debug\MM13Data.lua" />
-    <DeploymentItem filename="MMPlus.Test\bin\Debug\MM05Data.lua" />
-    <DeploymentItem filename="MMPlus.Test\bin\Debug\MM04Data.lua" />
-    <DeploymentItem filename="MMPlus.Test\bin\Debug\MM11Data.lua" />
     <DeploymentItem filename="MMPlus.Test\bin\Debug\MM06Data.lua" />
-    <DeploymentItem filename="MMPlus.Test\bin\Debug\MM10Data.lua" />
     <DeploymentItem filename="MMPlus.Test\bin\Debug\MM09Data.lua" />
+    <DeploymentItem filename="MMPlus.Shared\Templates\" />
+    <DeploymentItem filename="MMPlus.Test\bin\Debug\MM03Data.lua" />
+    <DeploymentItem filename="MMPlus.Test\bin\Debug\MM12Data.lua" />
+    <DeploymentItem filename="MMPlus.Test\bin\Debug\MM08Data.lua" />
+    <DeploymentItem filename="MMPlus.Test\bin\Debug\MM04Data.lua" />
+    <DeploymentItem filename="MMPlus.Test\bin\Debug\MM02Data.lua" />
   </Deployment>
   <Execution>
     <TestTypeSpecific>

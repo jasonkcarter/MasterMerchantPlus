@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -27,6 +28,13 @@ namespace MMPlus.Test
     [DeploymentItem("MM13Data.lua")]
     [DeploymentItem("MM14Data.lua")]
     [DeploymentItem("MM15Data.lua")]
+    [DeploymentItem("Templates\\MMDataHeader.txt")]
+    [DeploymentItem("Templates\\MMDataFooter.txt")]
+    [DeploymentItem("Templates\\MMDataItemHeader.txt")]
+    [DeploymentItem("Templates\\MMDataItemFooter.txt")]
+    [DeploymentItem("Templates\\MMDataSaleHeader.txt")]
+    [DeploymentItem("Templates\\MMDataSaleFooter.txt")]
+    [DeploymentItem("Templates\\MMDataSale.txt")]
     // ReSharper disable once InconsistentNaming
     public class MMSavedVariableReaderTests
     {
@@ -34,6 +42,8 @@ namespace MMPlus.Test
         ///     Name of the zip archive containing all the test Master Merchant saved variable sales data.
         /// </summary>
         public const string SavedVariablesArchive = "SavedVariables.zip";
+
+        public const string IndexFilePath = "index.csv";
 
         /// <summary>
         ///     Name of the file containing test Master Merchant saved variable sales data.
@@ -45,33 +55,49 @@ namespace MMPlus.Test
         ///     TestFile00 with a timestamp filter.
         /// </summary>
         [TestMethod]
-        public void MMSavedVariableReader_GetEsoGuildStoreSales_GuildTimestampFilter()
+        public void MMSavedVariableReader_GetEsoGuildStoreSales_Incremental()
         {
-            for (int i = 0; i < 16; i++)
+            const string testFileName = "MMIncrementalData.lua";
+
+            // Arrange
+            var initialSales = new SortedSet<EsoSale>();
+            const int expectedSaleCount = 100;
+            for (int i = 0; i < expectedSaleCount; i++)
             {
-                string testFileName = string.Format(TestFilePathFormat, i);
-                // Arrange
-                var reader = new MMSavedVariableReader(testFileName);
-                // Choose a recent enough timestamp that the prefix will have no records with prefixes higher than it.
-                // This allows us to do a straight up grep search by timestamp prefix to get the expected count.
-                var filter = new EsoSaleFilter
+                initialSales.Add(Utility.CreateRandomSale());
+            }
+            using (FileStream writeStream = File.OpenWrite(testFileName))
+            {
+                using (var writer = new MMSavedVariableWriter(writeStream))
                 {
-                    GuildName = "Ethereal Traders Union",
-                    TimestampMinimum = 1424900000
-                };
-                reader.Filters = new[] {filter};
-                string timestampSubstring = string.Format("[\"timestamp\"] = {0}", filter.TimestampMinimum/100000);
-                string guildSubstring = string.Format("[\"guild\"] = \"{0}\"", filter.GuildName);
-                int expectedSaleCount = CountLuaTablesWithLines(testFileName, timestampSubstring, guildSubstring);
-
-                // Act
-                List<EsoSale> sales = reader.GetEsoSales();
-
-                // Assert
-                if (expectedSaleCount != sales.Count)
-                {
-                    Assert.Fail("Expected {0} sales in {1}, but found {2}", expectedSaleCount, testFileName, sales.Count);
+                    writer.Write("MMtestVariable", "@account", initialSales);
                 }
+            }
+            var reader = new MMSavedVariableReader(testFileName);
+            var index = new MMSavedVariableIndex();
+            index.SavedVariablesLastModified = DateTime.UtcNow;
+            List<EsoSale> sales = reader.GetEsoSales(index);
+
+            for (int i = 0; i < expectedSaleCount; i++)
+            {
+                initialSales.Add(Utility.CreateRandomSale());
+            }
+
+            using (FileStream writeStream = File.OpenWrite(testFileName))
+            {
+                using (var writer = new MMSavedVariableWriter(writeStream))
+                {
+                    writer.Write("MMtestVariable", "@account", initialSales);
+                }
+            }
+
+            // Act
+            sales = reader.GetEsoSales(index);
+
+            // Assert
+            if (expectedSaleCount != sales.Count)
+            {
+                Assert.Fail("Expected {0} sales in {1}, but found {2}", expectedSaleCount, testFileName, sales.Count);
             }
         }
 
@@ -80,7 +106,7 @@ namespace MMPlus.Test
         ///     TestFile00 with no filters.
         /// </summary>
         [TestMethod]
-        public void MMSavedVariableReader_GetEsoGuildStoreSales_NoFilter()
+        public void MMSavedVariableReader_GetEsoGuildStoreSales_FirstTime()
         {
             for (int i = 0; i < 16; i++)
             {
@@ -88,42 +114,12 @@ namespace MMPlus.Test
                 // Arrange
                 var reader = new MMSavedVariableReader(testFileName);
                 int expectedSaleCount = CountLuaTablesWithLines(testFileName);
+                var index = new MMSavedVariableIndex();
+                index.SavedVariablesLastModified = DateTimeOffset.UtcNow;
 
                 // Act
-                List<EsoSale> sales = reader.GetEsoSales();
-
-                // Assert
-                if (expectedSaleCount != sales.Count)
-                {
-                    Assert.Fail("Expected {0} sales in {1}, but found {2}", expectedSaleCount, testFileName, sales.Count);
-                }
-            }
-        }
-
-        /// <summary>
-        ///     Validate that the synchronous GetEsoSales() method returns the expected number of sales when run on
-        ///     TestFile00 with a timestamp filter.
-        /// </summary>
-        [TestMethod]
-        public void MMSavedVariableReader_GetEsoGuildStoreSales_TimestampFilter()
-        {
-            for (int i = 0; i < 16; i++)
-            {
-                string testFileName = string.Format(TestFilePathFormat, i);
-                // Arrange
-                var reader = new MMSavedVariableReader(testFileName);
-                // Choose a recent enough timestamp that the prefix will have no records with prefixes higher than it.
-                // This allows us to do a straight up grep search by timestamp prefix to get the expected count.
-                var filter = new EsoSaleFilter
-                {
-                    TimestampMinimum = 1424900000
-                };
-                reader.Filters = new[] {filter};
-                string searchString = string.Format("[\"timestamp\"] = {0}", filter.TimestampMinimum/100000);
-                int expectedSaleCount = CountLuaTablesWithLines(testFileName, searchString);
-
-                // Act
-                List<EsoSale> sales = reader.GetEsoSales();
+                List<EsoSale> sales = reader.GetEsoSales(index);
+                index.Save(IndexFilePath);
 
                 // Assert
                 if (expectedSaleCount != sales.Count)
