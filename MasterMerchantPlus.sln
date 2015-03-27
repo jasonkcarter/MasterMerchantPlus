@@ -27,6 +27,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MMPlus.MergeData", "Tools\M
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MMPlus.ToCsv", "Tools\MMPlus.ToCsv\MMPlus.ToCsv.csproj", "{A364DB29-F3DE-4239-9420-1BECD31E3793}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MMPlus.IngredientPrices", "MMPlus.IngredientPrices\MMPlus.IngredientPrices.csproj", "{F4C339C9-BD6F-48EE-8725-A9D166A468BE}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -53,6 +55,10 @@ Global
 		{A364DB29-F3DE-4239-9420-1BECD31E3793}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A364DB29-F3DE-4239-9420-1BECD31E3793}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A364DB29-F3DE-4239-9420-1BECD31E3793}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F4C339C9-BD6F-48EE-8725-A9D166A468BE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F4C339C9-BD6F-48EE-8725-A9D166A468BE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F4C339C9-BD6F-48EE-8725-A9D166A468BE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F4C339C9-BD6F-48EE-8725-A9D166A468BE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -60,5 +66,6 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{C139E604-7389-4E08-9596-F8381C8B94F6} = {F27A3DBD-8DFF-457A-9199-6533C8D80E18}
 		{A364DB29-F3DE-4239-9420-1BECD31E3793} = {F27A3DBD-8DFF-457A-9199-6533C8D80E18}
+		{F4C339C9-BD6F-48EE-8725-A9D166A468BE} = {F27A3DBD-8DFF-457A-9199-6533C8D80E18}
 	EndGlobalSection
 EndGlobal
