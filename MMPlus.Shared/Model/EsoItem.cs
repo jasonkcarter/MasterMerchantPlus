@@ -23,7 +23,7 @@ namespace MMPlus.Shared.Model
         /// <summary>
         ///     Gets or sets the unique identifier for this item's base, without any special traits or qualities.
         /// </summary>
-        public string BaseId
+        public virtual string BaseId
         {
             get { return _baseId; }
             set
@@ -41,7 +41,7 @@ namespace MMPlus.Shared.Model
         /// <value>
         ///     <c>true</c> if this instance is valid; otherwise, <c>false</c>.
         /// </value>
-        public bool IsValid { get; private set; }
+        public bool IsValid { get; protected set; }
 
         /// <summary>
         ///     Gets or sets the path to this item's icon file.
@@ -52,7 +52,7 @@ namespace MMPlus.Shared.Model
         ///     Gets or sets a unique index to identify this specific variety of item, which incorporates required level/veteran
         ///     rank, quality, traits, and extra effects numbers.
         /// </summary>
-        public string ItemIndex
+        public virtual string ItemIndex
         {
             get { return _itemIndex; }
             set
