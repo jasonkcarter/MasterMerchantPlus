@@ -1,8 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using MMPlus.Shared.EsoSavedVariables;
-using MMPlus.Shared.Model;
+using Lua.EsoSavedVariables;
+using MMPlus.Client.Model;
+using MMPlus.Shared.Utility;
 
 namespace MMPlus.MergeData
 {
@@ -16,28 +16,35 @@ namespace MMPlus.MergeData
                     "Usage: MMPlus.MergeData.exe <accountName> <inputFileName1> <inputFileName2> <outputVariableName> <outputFileName>");
             }
 
-            string accountName = args[0];
-            string inputFileName1 = args[1];
-            string inputFileName2 = args[2];
-            string outputVariableName = args[3];
-            string outputFileName = args[4];
+            var accountName = args[0];
+            var inputFileName1 = args[1];
+            var inputFileName2 = args[2];
+            var outputVariableName = args[3];
+            var outputFileName = args[4];
 
-
-            var sortedSales = new SortedSet<EsoSale>(new MMFileSaleComparer());
+            var sortedSales = new SortedCollection<EsoSale>(new MMFileSaleComparer());
             Console.WriteLine("Reading sales from {0}...", inputFileName1);
-            var reader = new MMSavedVariableReader(inputFileName1);
-            reader.ProcessEsoGuildStoreSales(sale => sortedSales.Add(sale));
-            Console.WriteLine("Reading sales from {0}...", inputFileName2);
-            reader = new MMSavedVariableReader(inputFileName2);
-            reader.ProcessEsoGuildStoreSales(sale =>
+            var reader = new MMSavedVariableReader();
+            using (var stream = File.OpenRead(inputFileName1))
             {
-                if (!sortedSales.Contains(sale))
-                {
-                    sortedSales.Add(sale);
-                }
-            });
+                reader.ProcessEsoGuildStoreSales(stream, sortedSales.Add);
+            }
+            Console.WriteLine("Reading sales from {0}...", inputFileName2);
+            reader = new MMSavedVariableReader();
+            using (var stream = File.OpenRead(inputFileName2))
+            {
+                reader.ProcessEsoGuildStoreSales(
+                    stream,
+                    sale =>
+                    {
+                        if (!sortedSales.Contains(sale))
+                        {
+                            sortedSales.Add(sale);
+                        }
+                    });
+            }
             Console.WriteLine("Writing combined sales to {0} for account {1}...", outputFileName, accountName);
-            using (FileStream stream = File.Open(outputFileName, FileMode.Create))
+            using (var stream = File.Open(outputFileName, FileMode.Create))
             {
                 using (var writer = new MMSavedVariableWriter(stream))
                 {

@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using MMPlus.Shared.Model;
+using MMPlus.Client.Model;
 
 namespace MMPlus.MergeData
 {
@@ -24,7 +24,7 @@ namespace MMPlus.MergeData
         /// </returns>
         public int Compare(EsoSale x, EsoSale y)
         {
-            int result = String.Compare(x.ItemBaseId, y.ItemBaseId, StringComparison.InvariantCultureIgnoreCase);
+            var result = String.Compare(x.ItemBaseId, y.ItemBaseId, StringComparison.InvariantCultureIgnoreCase);
             if (result != 0)
             {
                 return result;

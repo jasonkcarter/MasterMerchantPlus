@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using MMPlus.Shared.EsoSavedVariables;
-using MMPlus.Shared.Model;
+using Lua.EsoSavedVariables;
+using MMPlus.Client.Model;
 
 namespace MMPlus.IngredientPrices
 {
@@ -45,7 +45,7 @@ namespace MMPlus.IngredientPrices
                     "Usage: MMPlus.IngredientPrices.exe <outputFileName> <path_to_saved_variables_folder>");
             }
 
-            string outputFileName = args[0];
+            var outputFileName = args[0];
             string inputDirectory;
             if (args.Length < 2)
             {
@@ -61,95 +61,99 @@ namespace MMPlus.IngredientPrices
             }
 
 
-            string savedVarPathTemplate = Path.Combine(inputDirectory, "MM{0:D2}Data.lua");
+            var savedVarPathTemplate = Path.Combine(inputDirectory, "MM{0:D2}Data.lua");
             var ingredients = new Dictionary<string, EsoItemSalesData>();
-            using (FileStream stream = File.OpenRead("provisioning-ingredients.csv"))
+            using (var stream = File.OpenRead("provisioning-ingredients.csv"))
             {
                 using (var reader = new StreamReader(stream))
                 {
                     string line;
                     while ((line = reader.ReadLine()) != null)
                     {
-                        string[] lineParts = line.Split(',');
-                        string ingredientName = GetStringValue(lineParts[0]);
-                        string ingredientLink = GetStringValue(lineParts[1]);
-                        string[] itemLinkParts = ingredientLink.Split(':');
+                        var lineParts = line.Split(',');
+                        var ingredientName = GetStringValue(lineParts[0]);
+                        var ingredientLink = GetStringValue(lineParts[1]);
+                        var itemLinkParts = ingredientLink.Split(':');
                         if (itemLinkParts.Length < 3)
                         {
                             continue;
                         }
-                        string itemBaseId = itemLinkParts[2];
+                        var itemBaseId = itemLinkParts[2];
                         ingredients.Add(itemBaseId, new EsoItemSalesData {BaseId = itemBaseId, Name = ingredientName});
                     }
                 }
             }
 
-            int earliestSaleTimestamp = -1;
-            int latestSaleTimestamp = -1;
-            for (int i = 0; i < 16; i++)
+            var earliestSaleTimestamp = -1;
+            var latestSaleTimestamp = -1;
+            for (var i = 0; i < 16; i++)
             {
-                string inFile = string.Format(savedVarPathTemplate, i);
+                var inFile = string.Format(savedVarPathTemplate, i);
                 Console.WriteLine("Reading sales from {0}...", inFile);
-                var reader = new MMSavedVariableReader(inFile);
-                reader.ProcessEsoGuildStoreSales(
-                    sale =>
-                    {
-                        if (sale.SaleTimestamp > latestSaleTimestamp)
+                var reader = new MMSavedVariableReader();
+                using (var stream = File.OpenRead(inFile))
+                {
+                    reader.ProcessEsoGuildStoreSales(
+                        stream,
+                        sale =>
                         {
-                            latestSaleTimestamp = sale.SaleTimestamp;
-                        }
-                        if (sale.SaleTimestamp < earliestSaleTimestamp)
-                        {
-                            earliestSaleTimestamp = sale.SaleTimestamp;
-                        }
-                        EsoItemSalesData ingredientData;
+                            if (sale.SaleTimestamp > latestSaleTimestamp)
+                            {
+                                latestSaleTimestamp = sale.SaleTimestamp;
+                            }
+                            if (sale.SaleTimestamp < earliestSaleTimestamp)
+                            {
+                                earliestSaleTimestamp = sale.SaleTimestamp;
+                            }
+                            EsoItemSalesData ingredientData;
 
-                        // Remove the name portion of the item link
-                        string[] itemLinkParts = sale.ItemLink.Split(':');
-                        if (itemLinkParts.Length < 3)
-                        {
-                            return;
-                        }
-                        string itemBaseId = itemLinkParts[2];
+                            // Remove the name portion of the item link
+                            var itemLinkParts = sale.ItemLink.Split(':');
+                            if (itemLinkParts.Length < 3)
+                            {
+                                return;
+                            }
+                            var itemBaseId = itemLinkParts[2];
 
-                        // Merge data for both carrot types
-                        if (itemBaseId == "34324")
-                        {
-                            itemBaseId = "28600";
-                        }
+                            // Merge data for both carrot types
+                            if (itemBaseId == "34324")
+                            {
+                                itemBaseId = "28600";
+                            }
 
-                        // Try to find an ingredient with the same link
-                        if (ingredients.TryGetValue(itemBaseId, out ingredientData))
-                        {
-                            // If one is found, update its price data
-                            ingredientData.SalesPriceSum += sale.Price;
-                            ingredientData.SalesQuantitySum += sale.Quantity;
-                        }
-                    });
+                            // Try to find an ingredient with the same link
+                            if (ingredients.TryGetValue(itemBaseId, out ingredientData))
+                            {
+                                // If one is found, update its price data
+                                ingredientData.SalesPriceSum += sale.Price;
+                                ingredientData.SalesQuantitySum += sale.Quantity;
+                            }
+                        });
+                }
             }
             Console.WriteLine("Writing prices to {0}...", outputFileName);
-            float totalDays = (latestSaleTimestamp - (float) earliestSaleTimestamp)/86400;
-            using (FileStream stream = File.Open(outputFileName, FileMode.Create))
+            var totalDays = (latestSaleTimestamp - (float) earliestSaleTimestamp)/86400;
+            using (var stream = File.Open(outputFileName, FileMode.Create))
             {
                 using (var writer = new StreamWriter(stream))
                 {
-                    string csvLine = string.Format("{0},{1},{2},{3}",
+                    var csvLine = string.Format("{0},{1},{2},{3}",
                         GetCsvValue("Ingredient"),
                         GetCsvValue("Average Ea. Price"),
                         GetCsvValue("Average Qty. Sold/Day"),
                         GetCsvValue("Average Gold/Hour"));
                     writer.WriteLine(csvLine);
-                    foreach (string ingredientItemBaseId in ingredients.Keys)
+                    foreach (var ingredientItemBaseId in ingredients.Keys)
                     {
-                        EsoItemSalesData ingredientData = ingredients[ingredientItemBaseId];
+                        var ingredientData = ingredients[ingredientItemBaseId];
                         if (ingredientData.SalesQuantitySum == 0)
                         {
                             continue;
                         }
                         ingredientData.SalesPriceAverage =
                             Convert.ToInt32(ingredientData.SalesPriceSum/ingredientData.SalesQuantitySum);
-                        float salesQuantityPerDayAverage = ingredientData.SalesQuantitySum/totalDays;
-                        float goldPerHourAverage = salesQuantityPerDayAverage*ingredientData.SalesPriceAverage/24;
+                        var salesQuantityPerDayAverage = ingredientData.SalesQuantitySum/totalDays;
+                        var goldPerHourAverage = salesQuantityPerDayAverage*ingredientData.SalesPriceAverage/24;
                         csvLine = string.Format("{0},{1},{2},{3}",
                             GetCsvValue(ingredientData.Name),
                             GetCsvValue(ingredientData.SalesPriceAverage.ToString("F2")),

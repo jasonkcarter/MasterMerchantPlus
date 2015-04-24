@@ -1,4 +1,4 @@
-﻿namespace MMPlus.Shared.Data
+﻿namespace MMPlus.Service.Data
 {
     /// <summary>
     ///     Supports serializing and deserializing objects to/from semicolon-delimited format.

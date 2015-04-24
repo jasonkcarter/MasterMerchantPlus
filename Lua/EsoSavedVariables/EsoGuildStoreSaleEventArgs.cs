@@ -1,7 +1,7 @@
 ﻿using System;
-using MMPlus.Shared.Model;
+using MMPlus.Client.Model;
 
-namespace MMPlus.Shared.EsoSavedVariables
+namespace Lua.EsoSavedVariables
 {
     public class EsoGuildStoreSaleEventArgs : EventArgs
     {

@@ -1,14 +1,15 @@
 ﻿using System;
 using System.Linq;
-using Lua;
 using Microsoft.WindowsAzure.Storage.Table;
+using MMPlus.Shared.Interface;
+using MMPlus.Shared.Model;
 
-namespace MMPlus.Shared.Model
+namespace MMPlus.Service.Model
 {
     /// <summary>
     ///     Represents a specific Elder Scrolls Online item, with all of its special traits, if any.
     /// </summary>
-    public class EsoItem : TableEntity
+    public class EsoItem : TableEntity, IEsoItem
     {
         /// <summary>
         ///     Backing field for the BaseId property.
@@ -68,7 +69,7 @@ namespace MMPlus.Shared.Model
                 EsoItemQuality quality;
                 EsoItemTrait trait;
                 int potionEffects;
-                bool validIndex = TryParseIndex(ItemIndex,
+                var validIndex = TryParseIndex(ItemIndex,
                     out level, out veteranRank, out quality, out trait, out potionEffects);
                 if (validIndex)
                 {
@@ -123,7 +124,7 @@ namespace MMPlus.Shared.Model
             out EsoItemQuality quality, out EsoItemTrait trait, out int potionEffects)
         {
             // Confirm that the ItemIndex property look like 5 values separated by colons.
-            string[] indexParts = null;
+            string[] indexParts;
 
             // Try to parse each value of the index into an integer, and then validate
             // the quality and trait.
@@ -150,21 +151,6 @@ namespace MMPlus.Shared.Model
             potionEffects = values[4];
 
             return true;
-        }
-
-        /// <summary>
-        ///     Loads the value from a given Lua table field into it's corresponding property, if one exists.
-        /// </summary>
-        /// <param name="field">The Lua table field containing the property and value to set.</param>
-        internal void Set(LuaTableField field)
-        {
-            if (field == null) return;
-            switch (field.Name)
-            {
-                case "itemIcon":
-                    ItemIcon = field.Value;
-                    break;
-            }
         }
     }
 }

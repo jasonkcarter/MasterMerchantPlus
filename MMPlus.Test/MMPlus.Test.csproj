@@ -93,16 +93,28 @@
     <Compile Include="TableStorageRepositoryTests.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\MMPlus.Shared\MMPlus.Shared.csproj">
-      <Project>{0262a48f-8c78-4543-b996-3d46ab755994}</Project>
-      <Name>MMPlus.Shared</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
     <None Include="packages.config" />
     <None Include="SavedVariables.zip">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Lua\Lua.csproj">
+      <Project>{c1e677e4-7d46-4e06-9227-d17847299f88}</Project>
+      <Name>Lua</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\MMPlus.Client\MMPlus.Client.csproj">
+      <Project>{15c7575f-346f-4e0c-b2b5-e13226a8ba83}</Project>
+      <Name>MMPlus.Client</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\MMPlus.Service\MMPlus.Service.csproj">
+      <Project>{9972b12a-8208-41c2-9a6c-7aad1d6c79fe}</Project>
+      <Name>MMPlus.Service</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\MMPlus.Shared\MMPlus.Shared.csproj">
+      <Project>{887a9e8d-609c-453c-a637-85fc57b0595e}</Project>
+      <Name>MMPlus.Shared</Name>
+    </ProjectReference>
   </ItemGroup>
   <Choose>
     <When Condition="'$(VisualStudioVersion)' == '10.0' And '$(IsCodedUITest)' == 'True'">

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.IO;
-using MMPlus.Shared.EsoSavedVariables;
+using Lua.EsoSavedVariables;
 
 namespace MMPlus.ToCsv
 {
@@ -38,17 +38,22 @@ namespace MMPlus.ToCsv
                     {
                         string inFile = string.Format(savedVarPathTemplate, i);
                         Console.WriteLine("Reading sales from {0}...", inFile);
-                        var reader = new MMSavedVariableReader(inFile);
-                        reader.ProcessEsoGuildStoreSales(
-                            sale =>
-                            {
-                                string line = string.Format("{0},{1},{2},{3},{4},{5},{6},{7},{8},{9}\n",
-                                    sale.TimestampId, sale.SaleTimestamp, sale.ItemBaseId, sale.ItemIndex,
-                                    sale.GetItemNameFromLink(), sale.GuildName, sale.Quantity, sale.Price, sale.Buyer,
-                                    sale.Seller);
-                                // ReSharper disable once AccessToDisposedClosure
-                                writer.Write(line);
-                            });
+                        var reader = new MMSavedVariableReader();
+                        using (FileStream stream = File.OpenRead(inFile))
+                        {
+                            reader.ProcessEsoGuildStoreSales(
+                                stream,
+                                sale =>
+                                {
+                                    string line = string.Format("{0},{1},{2},{3},{4},{5},{6},{7},{8},{9}\n",
+                                        sale.TimestampId, sale.SaleTimestamp, sale.ItemBaseId, sale.ItemIndex,
+                                        sale.GetItemNameFromLink(), sale.GuildName, sale.Quantity, sale.Price,
+                                        sale.Buyer,
+                                        sale.Seller);
+                                    // ReSharper disable once AccessToDisposedClosure
+                                    writer.Write(line);
+                                });
+                        }
                     }
                 }
             }

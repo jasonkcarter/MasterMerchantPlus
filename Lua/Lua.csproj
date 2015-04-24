@@ -38,6 +38,12 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="EsoSavedVariables\EsoGuildStoreSaleEventArgs.cs" />
+    <Compile Include="EsoSavedVariables\EsoSaleFilter.cs" />
+    <Compile Include="EsoSavedVariables\MMLuaListener.cs" />
+    <Compile Include="EsoSavedVariables\MMSavedVariableReader.cs" />
+    <Compile Include="EsoSavedVariables\MMSavedVariableScope.cs" />
+    <Compile Include="EsoSavedVariables\MMSavedVariableWriter.cs" />
     <Compile Include="ILuaListener.cs" />
     <Compile Include="ILuaVisitor.cs" />
     <Compile Include="LuaBaseListener.cs" />
@@ -47,6 +53,11 @@
     <Compile Include="LuaParser.cs" />
     <Compile Include="LuaTableField.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Antlr4.Runtime.portable-net40">
@@ -70,6 +81,22 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="License.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\MMPlus.Client\MMPlus.Client.csproj">
+      <Project>{15c7575f-346f-4e0c-b2b5-e13226a8ba83}</Project>
+      <Name>MMPlus.Client</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\MMPlus.Shared\MMPlus.Shared.csproj">
+      <Project>{887a9e8d-609c-453c-a637-85fc57b0595e}</Project>
+      <Name>MMPlus.Shared</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />

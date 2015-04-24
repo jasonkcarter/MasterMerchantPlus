@@ -12,8 +12,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{3783B8
 		.nuget\NuGet.targets = .nuget\NuGet.targets
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MMPlus.Shared", "MMPlus.Shared\MMPlus.Shared.csproj", "{0262A48F-8C78-4543-B996-3D46AB755994}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MMPlus.Test", "MMPlus.Test\MMPlus.Test.csproj", "{CE9FBC68-AA0F-46DD-94F7-EC37D5267A1F}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{61E14BBD-5B6C-48A8-A090-F8FB39B88DC1}"
@@ -31,6 +29,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MMPlus.IngredientPrices", "
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MMPlus.Service", "MMPlus.Service\MMPlus.Service.csproj", "{9972B12A-8208-41C2-9A6C-7AAD1D6C79FE}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MMPlus.Client", "MMPlus.Client\MMPlus.Client.csproj", "{15C7575F-346F-4E0C-B2B5-E13226A8BA83}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MMPlus.Shared", "MMPlus.Shared\MMPlus.Shared.csproj", "{887A9E8D-609C-453C-A637-85FC57B0595E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -41,10 +43,6 @@ Global
 		{C1E677E4-7D46-4E06-9227-D17847299F88}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C1E677E4-7D46-4E06-9227-D17847299F88}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C1E677E4-7D46-4E06-9227-D17847299F88}.Release|Any CPU.Build.0 = Release|Any CPU
-		{0262A48F-8C78-4543-B996-3D46AB755994}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{0262A48F-8C78-4543-B996-3D46AB755994}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{0262A48F-8C78-4543-B996-3D46AB755994}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{0262A48F-8C78-4543-B996-3D46AB755994}.Release|Any CPU.Build.0 = Release|Any CPU
 		{CE9FBC68-AA0F-46DD-94F7-EC37D5267A1F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{CE9FBC68-AA0F-46DD-94F7-EC37D5267A1F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CE9FBC68-AA0F-46DD-94F7-EC37D5267A1F}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -65,6 +63,14 @@ Global
 		{9972B12A-8208-41C2-9A6C-7AAD1D6C79FE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9972B12A-8208-41C2-9A6C-7AAD1D6C79FE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9972B12A-8208-41C2-9A6C-7AAD1D6C79FE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{15C7575F-346F-4E0C-B2B5-E13226A8BA83}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{15C7575F-346F-4E0C-B2B5-E13226A8BA83}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{15C7575F-346F-4E0C-B2B5-E13226A8BA83}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{15C7575F-346F-4E0C-B2B5-E13226A8BA83}.Release|Any CPU.Build.0 = Release|Any CPU
+		{887A9E8D-609C-453C-A637-85FC57B0595E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{887A9E8D-609C-453C-A637-85FC57B0595E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{887A9E8D-609C-453C-A637-85FC57B0595E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{887A9E8D-609C-453C-A637-85FC57B0595E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

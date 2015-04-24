@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Lua;
-using MMPlus.Shared.Model;
+using MMPlus.Client.Model;
 
-namespace MMPlus.Shared.EsoSavedVariables
+namespace Lua.EsoSavedVariables
 {
     /// <summary>
     ///     Used to report sales nodes in the Lua parse tree for a Master Merchant data file
@@ -123,7 +122,7 @@ namespace MMPlus.Shared.EsoSavedVariables
                         LuaTableField itemField = GetField(context);
                         if (itemField != null)
                         {
-                            CurrentItem.Set(itemField);
+                            itemField.SetEsoItem(CurrentItem);
                         }
                     }
                     break;
@@ -133,7 +132,7 @@ namespace MMPlus.Shared.EsoSavedVariables
                         LuaTableField saleField = GetField(context);
                         if (saleField != null)
                         {
-                            CurrentSale.Set(saleField);
+                            saleField.SetEsoSale(CurrentSale);
                         }
                     }
                     break;

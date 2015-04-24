@@ -1,0 +1,9 @@
+﻿{
+  "$schema": "http://schemastore.org/schemas/json/webjob-publish-settings.json",
+  "webJobName": "MMPlus-Service",
+  "startTime": "2015-04-24T00:00:00-06:00",
+  "endTime": "2115-01-24T00:00:00-06:00",
+  "jobRecurrenceFrequency": "Minute",
+  "interval": 5,
+  "runMode": "Scheduled"
+}

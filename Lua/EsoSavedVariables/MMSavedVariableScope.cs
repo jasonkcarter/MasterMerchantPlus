@@ -1,4 +1,4 @@
-﻿namespace MMPlus.Shared.EsoSavedVariables
+﻿namespace Lua.EsoSavedVariables
 {
     // ReSharper disable once InconsistentNaming
     public enum MMSavedVariableScope

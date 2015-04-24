@@ -1,4 +1,4 @@
-﻿namespace MMPlus.Shared.EsoSavedVariables
+﻿namespace Lua.EsoSavedVariables
 {
     /// <summary>
     ///     Used to filter out guild store sales by name and/or date/time.

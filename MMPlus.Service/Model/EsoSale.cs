@@ -1,16 +1,16 @@
 ﻿using System;
 using System.Globalization;
 using System.Text;
-using Lua;
 using Microsoft.WindowsAzure.Storage.Table;
-using MMPlus.Shared.Data;
+using MMPlus.Shared.Interface;
+using MMPlus.Shared.Model;
 
-namespace MMPlus.Shared.Model
+namespace MMPlus.Service.Model
 {
     /// <summary>
     ///     Represents a guild store sale event in Elder Scrolls Online.
     /// </summary>
-    public class EsoSale : TableEntity, ISemiDelimited
+    public class EsoSale : TableEntity, IEsoSale
     {
         /// <summary>
         ///     Gets or sets a value indicating whether the RowKey property is automatically refreshed whenever its component
@@ -81,7 +81,6 @@ namespace MMPlus.Shared.Model
         {
             _autoGenerateRowKey = autoGenerateRowKey;
         }
-
 
         /// <summary>
         ///     Gets or sets the unique account id of the player that purchased the item.
@@ -154,7 +153,7 @@ namespace MMPlus.Shared.Model
                 EsoItemQuality quality;
                 EsoItemTrait trait;
                 int potionEffects;
-                bool validIndex = EsoItem.TryParseIndex(ItemIndex,
+                var validIndex = EsoItem.TryParseIndex(ItemIndex,
                     out level, out veteranRank, out quality, out trait, out potionEffects);
                 if (validIndex)
                 {
@@ -303,7 +302,6 @@ namespace MMPlus.Shared.Model
             }
         }
 
-
         /// <summary>
         ///     Gets or sets a value indicating whether the sale occurred at a Guild Trader kiosk.
         /// </summary>
@@ -348,21 +346,21 @@ namespace MMPlus.Shared.Model
             if (string.IsNullOrEmpty(ItemLink)) return null;
 
             // Separate the link into the details portion and the name portion
-            string[] linkParts = ItemLink.Split(new[] {"|h"}, StringSplitOptions.None);
+            var linkParts = ItemLink.Split(new[] {"|h"}, StringSplitOptions.None);
 
             // The name portion is the second part
             if (linkParts.Length < 2) return null;
-            string name = linkParts[1];
+            var name = linkParts[1];
 
             // ESO sometimes returns item names ending in ^p or ^n. Remove that part.
-            int carrotIndex = name.IndexOf('^');
+            var carrotIndex = name.IndexOf('^');
             if (carrotIndex > -1)
             {
                 name = name.Substring(0, carrotIndex);
             }
 
             // Normalize the name into the local culture's title casing
-            TextInfo cultureTextInfo = CultureInfo.CurrentUICulture.TextInfo;
+            var cultureTextInfo = CultureInfo.CurrentUICulture.TextInfo;
             name = cultureTextInfo.ToTitleCase(name);
 
             return name;
@@ -370,13 +368,13 @@ namespace MMPlus.Shared.Model
 
         public void LoadFromSemiDelimited(string data)
         {
-            string[] parts = data.Split(';');
+            var parts = data.Split(';');
             if (parts.Length != 12)
             {
                 throw new InvalidOperationException(string.Format("Expected 12 fields in serialized input. Actual {0}",
                     parts.Length));
             }
-            bool autoGenerateRowKey = _autoGenerateRowKey;
+            var autoGenerateRowKey = _autoGenerateRowKey;
             _autoGenerateRowKey = false;
             GuildName = parts[0];
             SaleTimestamp = int.Parse(parts[1]);
@@ -400,65 +398,13 @@ namespace MMPlus.Shared.Model
         /// <param name="item">The item containing the property data to copy.</param>
         public void Set(EsoItem item)
         {
-            bool autoPopulateRowKey = _autoGenerateRowKey;
+            var autoPopulateRowKey = _autoGenerateRowKey;
             _autoGenerateRowKey = false;
             ItemBaseId = item.BaseId;
             ItemIndex = item.ItemIndex;
             ItemIcon = item.ItemIcon;
             GenerateRowKey();
             _autoGenerateRowKey = autoPopulateRowKey;
-        }
-
-        /// <summary>
-        ///     Loads the value from a given Lua table field into it's corresponding property, if one exists.
-        /// </summary>
-        /// <param name="field">The Lua table field containing the property and value to set.</param>
-        public void Set(LuaTableField field)
-        {
-            if (field == null) return;
-            switch (field.Name)
-            {
-                case "buyer":
-                    Buyer = field.Value;
-                    break;
-                case "guild":
-                    GuildName = field.Value;
-                    break;
-                case "seller":
-                    Seller = field.Value;
-                    break;
-                case "itemLink":
-                    ItemLink = field.Value;
-                    break;
-                case "price":
-                    int price;
-                    if (int.TryParse(field.Value, out price))
-                    {
-                        Price = price;
-                    }
-                    break;
-                case "wasKiosk":
-                    bool wasKiosk;
-                    if (bool.TryParse(field.Value, out wasKiosk))
-                    {
-                        WasKiosk = wasKiosk;
-                    }
-                    break;
-                case "quant":
-                    int quantity;
-                    if (int.TryParse(field.Value, out quantity))
-                    {
-                        Quantity = quantity;
-                    }
-                    break;
-                case "timestamp":
-                    int timestamp;
-                    if (int.TryParse(field.Value, out timestamp))
-                    {
-                        SaleTimestamp = timestamp;
-                    }
-                    break;
-            }
         }
 
         public string ToSemiDelimited()
@@ -490,7 +436,7 @@ namespace MMPlus.Shared.Model
                 return null;
             }
             var output = new StringBuilder();
-            foreach (char c in input)
+            foreach (var c in input)
             {
                 // Ignore control characters
                 if (char.IsControl(c))

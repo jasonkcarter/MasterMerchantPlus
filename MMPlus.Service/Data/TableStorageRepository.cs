@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using Humanizer;
 using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Table;
 
-namespace MMPlus.Shared.Data
+namespace MMPlus.Service.Data
 {
     /// <summary>
     ///     A repository provider for Azure Table Storage backends.
@@ -91,7 +92,7 @@ namespace MMPlus.Shared.Data
             }
             var account = CloudStorageAccount.Parse(_connectionString);
             CloudTableClient client = account.CreateCloudTableClient();
-            string tableName = _tablePrefix + Inflector.Inflector.Pluralize(type.Name);
+            string tableName = _tablePrefix + type.Name.Pluralize();
             table = client.GetTableReference(tableName);
             if (createIfNotExists)
             {

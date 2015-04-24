@@ -1,11 +1,13 @@
 ﻿using System;
+using MMPlus.Shared.Interface;
+using MMPlus.Shared.Model;
 
-namespace MMPlus.Shared.Model
+namespace MMPlus.Service.Model
 {
     /// <summary>
     ///     Represents global aggregated Guild Store sales data for a single Elder Scrolls inventory item.
     /// </summary>
-    public class EsoItemSalesData : EsoItem
+    public class EsoItemSalesData : EsoItem, IEsoItemSalesData
     {
         /// <summary>
         ///     Backing field for the BaseId property.

@@ -1,12 +1,12 @@
 ﻿using Microsoft.WindowsAzure.Storage.Table;
-using MMPlus.Shared.Data;
+using MMPlus.Shared.Interface;
 
-namespace MMPlus.Shared.Model
+namespace MMPlus.Service.Model
 {
     /// <summary>
     ///     Represents a Guild in the Elder Scrolls Online.
     /// </summary>
-    public class EsoGuild : TableEntity
+    public class EsoGuild : TableEntity, IEsoGuild
     {
         /// <summary>
         ///     Backing field for the Name property.

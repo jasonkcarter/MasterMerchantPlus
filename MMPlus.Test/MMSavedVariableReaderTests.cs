@@ -1,9 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Lua.EsoSavedVariables;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using MMPlus.Shared.EsoSavedVariables;
-using MMPlus.Shared.Model;
+using MMPlus.Client.Model;
 
 namespace MMPlus.Test
 {
@@ -47,11 +47,11 @@ namespace MMPlus.Test
         [TestMethod]
         public void MMSavedVariableReader_GetEsoGuildStoreSales_GuildTimestampFilter()
         {
-            for (int i = 0; i < 16; i++)
+            for (var i = 0; i < 16; i++)
             {
-                string testFileName = string.Format(TestFilePathFormat, i);
+                var testFileName = string.Format(TestFilePathFormat, i);
                 // Arrange
-                var reader = new MMSavedVariableReader(testFileName);
+                var reader = new MMSavedVariableReader();
                 // Choose a recent enough timestamp that the prefix will have no records with prefixes higher than it.
                 // This allows us to do a straight up grep search by timestamp prefix to get the expected count.
                 var filter = new EsoSaleFilter
@@ -59,16 +59,21 @@ namespace MMPlus.Test
                     GuildName = "Ethereal Traders Union",
                     TimestampMinimum = 1424900000
                 };
-                string timestampSubstring = string.Format("[\"timestamp\"] = {0}", filter.TimestampMinimum/100000);
-                string guildSubstring = string.Format("[\"guild\"] = \"{0}\"", filter.GuildName);
-                int expectedSaleCount = CountLuaTablesWithLines(testFileName, timestampSubstring, guildSubstring);
+                var timestampSubstring = string.Format("[\"timestamp\"] = {0}", filter.TimestampMinimum/100000);
+                var guildSubstring = string.Format("[\"guild\"] = \"{0}\"", filter.GuildName);
+                var expectedSaleCount = CountLuaTablesWithLines(testFileName, timestampSubstring, guildSubstring);
 
                 // Act
                 // TODO: Performance tune. Possibly ditch full Lua parsing. 
                 // TODO: Full data file scan is fine to take a long time, but filtered scans should be faster than this currently performs.
-                List<EsoSale> sales = reader.GetEsoGuildStoreSales(filter);
+                List<EsoSale> sales;
+                using (var stream = File.OpenRead(testFileName))
+                {
+                    sales = reader.GetEsoGuildStoreSales(stream, filter);
+                }
 
                 // Assert
+                Assert.IsNotNull(sales);
                 if (expectedSaleCount != sales.Count)
                 {
                     Assert.Fail("Expected {0} sales in {1}, but found {2}", expectedSaleCount, testFileName, sales.Count);
@@ -83,17 +88,22 @@ namespace MMPlus.Test
         [TestMethod]
         public void MMSavedVariableReader_GetEsoGuildStoreSales_NoFilter()
         {
-            for (int i = 0; i < 16; i++)
+            for (var i = 0; i < 16; i++)
             {
-                string testFileName = string.Format(TestFilePathFormat, i);
+                var testFileName = string.Format(TestFilePathFormat, i);
                 // Arrange
-                var reader = new MMSavedVariableReader(testFileName);
-                int expectedSaleCount = CountLuaTablesWithLines(testFileName);
+                var reader = new MMSavedVariableReader();
+                var expectedSaleCount = CountLuaTablesWithLines(testFileName);
 
                 // Act
-                List<EsoSale> sales = reader.GetEsoGuildStoreSales();
+                List<EsoSale> sales;
+                using (var stream = File.OpenRead(testFileName))
+                {
+                    sales = reader.GetEsoGuildStoreSales(stream);
+                }
 
                 // Assert
+                Assert.IsNotNull(sales);
                 if (expectedSaleCount != sales.Count)
                 {
                     Assert.Fail("Expected {0} sales in {1}, but found {2}", expectedSaleCount, testFileName, sales.Count);
@@ -108,22 +118,26 @@ namespace MMPlus.Test
         [TestMethod]
         public void MMSavedVariableReader_GetEsoGuildStoreSales_TimestampFilter()
         {
-            for (int i = 0; i < 16; i++)
+            for (var i = 0; i < 16; i++)
             {
-                string testFileName = string.Format(TestFilePathFormat, i);
+                var testFileName = string.Format(TestFilePathFormat, i);
                 // Arrange
-                var reader = new MMSavedVariableReader(testFileName);
+                var reader = new MMSavedVariableReader();
                 // Choose a recent enough timestamp that the prefix will have no records with prefixes higher than it.
                 // This allows us to do a straight up grep search by timestamp prefix to get the expected count.
                 var filter = new EsoSaleFilter
                 {
                     TimestampMinimum = 1424900000
                 };
-                string searchString = string.Format("[\"timestamp\"] = {0}", filter.TimestampMinimum/100000);
-                int expectedSaleCount = CountLuaTablesWithLines(testFileName, searchString);
+                var searchString = string.Format("[\"timestamp\"] = {0}", filter.TimestampMinimum/100000);
+                var expectedSaleCount = CountLuaTablesWithLines(testFileName, searchString);
 
                 // Act
-                List<EsoSale> sales = reader.GetEsoGuildStoreSales(filter);
+                List<EsoSale> sales;
+                using (var stream = File.OpenRead(testFileName))
+                {
+                    sales = reader.GetEsoGuildStoreSales(stream, filter);
+                }
 
                 // Assert
                 if (expectedSaleCount != sales.Count)
@@ -142,10 +156,10 @@ namespace MMPlus.Test
         private static int CountLuaTablesWithLines(string filePath, params string[] substrings)
         {
             var lineBuffer = new List<string>(11);
-            int count = 0;
-            int tableStartIndex = -1;
-            int tableEndIndex = -1;
-            using (FileStream stream = File.OpenRead(filePath))
+            var count = 0;
+            var tableStartIndex = -1;
+            var tableEndIndex = -1;
+            using (var stream = File.OpenRead(filePath))
             {
                 using (var reader = new StreamReader(stream))
                 {
@@ -193,7 +207,7 @@ namespace MMPlus.Test
                         {
                             var linesToSearch = lineBuffer.GetRange(tableStartIndex + 1,
                                 tableEndIndex - tableStartIndex - 2);
-                            int filterMatchCount = linesToSearch.Count(x => substrings.Any(x.Contains));
+                            var filterMatchCount = linesToSearch.Count(x => substrings.Any(x.Contains));
                             if (filterMatchCount == substrings.Length)
                             {
                                 count++;
