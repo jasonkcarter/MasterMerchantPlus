@@ -41,6 +41,8 @@
     <Compile Include="Interface\IEsoItem.cs" />
     <Compile Include="Interface\IEsoItemSalesData.cs" />
     <Compile Include="Interface\IEsoSale.cs" />
+    <Compile Include="Interface\IGuildService.cs" />
+    <Compile Include="Interface\ISyncService.cs" />
     <Compile Include="Model\EsoItemQuality.cs" />
     <Compile Include="Model\EsoItemTrait.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

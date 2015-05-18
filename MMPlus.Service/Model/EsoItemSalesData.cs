@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.Serialization;
 using MMPlus.Shared.Interface;
 using MMPlus.Shared.Model;
 
@@ -7,6 +8,7 @@ namespace MMPlus.Service.Model
     /// <summary>
     ///     Represents global aggregated Guild Store sales data for a single Elder Scrolls inventory item.
     /// </summary>
+    [DataContract]
     public class EsoItemSalesData : EsoItem, IEsoItemSalesData
     {
         /// <summary>

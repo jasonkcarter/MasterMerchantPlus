@@ -1,4 +1,5 @@
-﻿using Microsoft.WindowsAzure.Storage.Table;
+﻿using System.Runtime.Serialization;
+using Microsoft.WindowsAzure.Storage.Table;
 using MMPlus.Shared.Interface;
 
 namespace MMPlus.Service.Model
@@ -6,6 +7,7 @@ namespace MMPlus.Service.Model
     /// <summary>
     ///     Represents a Guild in the Elder Scrolls Online.
     /// </summary>
+    [DataContract]
     public class EsoGuild : TableEntity, IEsoGuild
     {
         /// <summary>

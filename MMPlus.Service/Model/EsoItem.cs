@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Runtime.Serialization;
 using Microsoft.WindowsAzure.Storage.Table;
 using MMPlus.Shared.Interface;
 using MMPlus.Shared.Model;
@@ -9,6 +10,7 @@ namespace MMPlus.Service.Model
     /// <summary>
     ///     Represents a specific Elder Scrolls Online item, with all of its special traits, if any.
     /// </summary>
+    [DataContract]
     public class EsoItem : TableEntity, IEsoItem
     {
         /// <summary>

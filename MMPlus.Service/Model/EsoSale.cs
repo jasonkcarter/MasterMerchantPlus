@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Globalization;
+using System.Runtime.Serialization;
 using System.Text;
 using Microsoft.WindowsAzure.Storage.Table;
 using MMPlus.Shared.Interface;
@@ -10,6 +11,7 @@ namespace MMPlus.Service.Model
     /// <summary>
     ///     Represents a guild store sale event in Elder Scrolls Online.
     /// </summary>
+    [DataContract]
     public class EsoSale : TableEntity, IEsoSale
     {
         /// <summary>
