@@ -3,13 +3,14 @@ using System.Collections.Generic;
 using Humanizer;
 using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Table;
+using MMPlus.Service.Interface;
 
 namespace MMPlus.Service.Data
 {
     /// <summary>
     ///     A repository provider for Azure Table Storage backends.
     /// </summary>
-    public class TableStorageRepository
+    public class TableStorageRepository : IStorageRepository
     {
         /// <summary>
         ///     The connection string for the Azure Table Storage account.
@@ -33,7 +34,7 @@ namespace MMPlus.Service.Data
         ///     Removes the entity from the repository.
         /// </summary>
         /// <param name="entity">The entity to delete from the repository.</param>
-        public bool Delete<T>(T entity) where T : TableEntity
+        public bool Delete<T>(T entity) where T : TableEntity, new()
         {
             CloudTable table = GetTable<T>();
             var deleteOperation = TableOperation.Delete(entity);
@@ -82,7 +83,7 @@ namespace MMPlus.Service.Data
         ///     Gets a table reference to the Azure Table Storage table responsible for holding entities of type <c>T</c>
         /// </summary>
         /// <returns>A reference to the table that holds entities of type <c>T</c>.</returns>
-        public CloudTable GetTable<T>(bool createIfNotExists = true) where T : TableEntity
+        public CloudTable GetTable<T>(bool createIfNotExists = true) where T : TableEntity, new()
         {
             CloudTable table;
             Type type = typeof (T);
@@ -107,7 +108,7 @@ namespace MMPlus.Service.Data
         ///     can insert or update an entity, it is also known as an upsert operation.
         /// </summary>
         /// <param name="entity">The entity to insert or replace in the repository.</param>
-        public bool InsertOrReplace<T>(T entity) where T : TableEntity
+        public bool InsertOrReplace<T>(T entity) where T : TableEntity, new()
         {
             CloudTable table = GetTable<T>();
             var upsertOperation = TableOperation.InsertOrReplace(entity);
@@ -120,7 +121,7 @@ namespace MMPlus.Service.Data
         ///     after unit tests.
         /// </summary>
         /// <typeparam name="T">The entity type to remove the table for.</typeparam>
-        public void RemoveTable<T>() where T : TableEntity
+        public void RemoveTable<T>() where T : TableEntity, new()
         {
             var table = GetTable<T>(false);
             table.DeleteIfExists();

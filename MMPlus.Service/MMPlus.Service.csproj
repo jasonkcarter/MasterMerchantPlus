@@ -77,6 +77,7 @@
   <ItemGroup>
     <Compile Include="Data\ISemiDelimited.cs" />
     <Compile Include="Data\TableStorageRepository.cs" />
+    <Compile Include="Interface\IStorageRepository.cs" />
     <Compile Include="Model\EsoGuild.cs" />
     <Compile Include="Model\EsoItem.cs" />
     <Compile Include="Model\EsoItemSalesData.cs" />

@@ -90,6 +90,9 @@
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="MMSavedVariableReaderTests.cs" />
+    <Compile Include="Service\MemoryStorageRepository.cs" />
+    <Compile Include="Service\MemoryStoragePartition.cs" />
+    <Compile Include="Service\MemoryStorageTable.cs" />
     <Compile Include="TableStorageRepositoryTests.cs" />
   </ItemGroup>
   <ItemGroup>
