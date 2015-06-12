@@ -323,7 +323,7 @@ namespace MMPlus.Service.Model
             }
         }
 
-        public virtual void GenerateRowKey()
+        public virtual EsoSale GenerateRowKey()
         {
             RowKey = string.Format("{0};{1};{2};{3};{4};{5};{6};{7};{8};{9}",
                 PrepareForKey(GuildName),
@@ -336,6 +336,7 @@ namespace MMPlus.Service.Model
                 PrepareForKey(Seller),
                 RelativeOrderIndex,
                 WasKiosk);
+            return this;
         }
 
         /// <summary>

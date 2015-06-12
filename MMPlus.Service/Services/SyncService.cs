@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ServiceModel;
+using MMPlus.Service.Interface;
 using MMPlus.Shared.Interface;
 
 namespace MMPlus.Service.Services
@@ -9,6 +10,20 @@ namespace MMPlus.Service.Services
     [ServiceBehavior(InstanceContextMode = InstanceContextMode.PerCall)]
     public class SyncService : ISyncService
     {
+        /// <summary>
+        ///     The storage data store for all Sales tables.
+        /// </summary>
+        private readonly IStorageRepository _repository;
+
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="SyncService" /> class.
+        /// </summary>
+        /// <param name="repository">The storage data store for all Sales tables.</param>
+        public SyncService(IStorageRepository repository)
+        {
+            _repository = repository;
+        }
+
         /// <summary>
         ///     Retrieves aggregate sales data for a given timestmap range for a given machine id.  If the service has not
         ///     completed a Put operation for the given machine id yet, the list will be empty.

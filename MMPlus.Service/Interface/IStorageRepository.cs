@@ -40,5 +40,7 @@ namespace MMPlus.Service.Interface
         /// </summary>
         /// <typeparam name="T">The entity type to remove the table for.</typeparam>
         void RemoveTable<T>() where T : TableEntity, new();
+
+        //TODO: add support for batch operations
     }
 }

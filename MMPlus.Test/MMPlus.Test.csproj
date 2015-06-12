@@ -94,6 +94,7 @@
     <Compile Include="Service\MemoryStoragePartition.cs" />
     <Compile Include="Service\MemoryStorageTable.cs" />
     <Compile Include="Service\GuildServiceTests.cs" />
+    <Compile Include="Service\SyncServiceTests.cs" />
     <Compile Include="TableStorageRepositoryTests.cs" />
   </ItemGroup>
   <ItemGroup>
