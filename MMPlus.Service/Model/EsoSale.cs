@@ -12,7 +12,7 @@ namespace MMPlus.Service.Model
     ///     Represents a guild store sale event in Elder Scrolls Online.
     /// </summary>
     [DataContract]
-    public class EsoSale : TableEntity, IEsoSale
+    public class EsoSale : TableEntity, IEsoSale, IComparable, IComparable<EsoSale>, IEquatable<EsoSale>
     {
         /// <summary>
         ///     Gets or sets a value indicating whether the RowKey property is automatically refreshed whenever its component
@@ -82,6 +82,51 @@ namespace MMPlus.Service.Model
         public EsoSale(bool autoGenerateRowKey)
         {
             _autoGenerateRowKey = autoGenerateRowKey;
+        }
+
+        public int CompareTo(object other)
+        {
+            var sale = other as EsoSale;
+            if (sale != null)
+            {
+                return CompareTo(sale);
+            }
+            throw new NotSupportedException(
+                "Comparison to types other than EsoSale and its subclasses is not supported.");
+        }
+
+        public int CompareTo(EsoSale other)
+        {
+            if (other == null)
+            {
+                return 1;
+            }
+            var result = string.CompareOrdinal(PartitionKey, other.PartitionKey);
+            if (result != 0) return result;
+            result = string.Compare(RowKey, other.RowKey);
+            if (result != 0) return result;
+            result = string.Compare(GuildName, other.GuildName);
+            if (result != 0) return result;
+            result = string.Compare(Seller, other.Seller);
+            if (result != 0) return result;
+            result = string.Compare(Buyer, other.Buyer);
+            if (result != 0) return result;
+            result = string.CompareOrdinal(ItemBaseId, other.ItemBaseId);
+            if (result != 0) return result;
+            result = string.Compare(ItemIndex, other.ItemIndex);
+            if (result != 0) return result;
+            result = Price.CompareTo(other.Price);
+            if (result != 0) return result;
+            result = Quantity.CompareTo(other.Quantity);
+            if (result != 0) return result;
+            result = RelativeOrderIndex.CompareTo(other.RelativeOrderIndex);
+            if (result != 0) return result;
+            return WasKiosk.CompareTo(other.WasKiosk);
+        }
+
+        public bool Equals(EsoSale other)
+        {
+            return CompareTo(other) == 0;
         }
 
         /// <summary>
@@ -321,6 +366,13 @@ namespace MMPlus.Service.Model
                     GenerateRowKey();
                 }
             }
+        }
+
+        public static EsoSale CreateFromSemiDelimited(string semiDelimitedString)
+        {
+            var sale = new EsoSale();
+            sale.LoadFromSemiDelimited(semiDelimitedString);
+            return sale;
         }
 
         public virtual EsoSale GenerateRowKey()
