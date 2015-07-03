@@ -37,7 +37,7 @@ namespace MMPlus.Service.Data
         public bool Delete<T>(T entity) where T : TableEntity, new()
         {
             CloudTable table = GetTable<T>();
-            var deleteOperation = TableOperation.Delete(entity);
+            TableOperation deleteOperation = TableOperation.Delete(entity);
             TableResult result = table.Execute(deleteOperation);
             return result.HttpStatusCode == 204;
         }
@@ -50,33 +50,63 @@ namespace MMPlus.Service.Data
         /// <param name="timestampMin">The minimum timestamp for entities to include</param>
         /// <param name="timestampMax">The maximum timestamp for entities to include.</param>
         /// <returns>A list of matching entities.</returns>
-        public IEnumerable<T> Find<T>(string partitionKey, string rowKey = null, DateTimeOffset? timestampMin = null,
+        public IEnumerable<T> Find<T>(string partitionKey = null, string rowKey = null,
+            DateTimeOffset? timestampMin = null,
             DateTimeOffset? timestampMax = null) where T : TableEntity, new()
         {
             CloudTable table = GetTable<T>();
-            string filter = TableQuery.GenerateFilterCondition("PartitionKey", QueryComparisons.Equal, partitionKey);
+            string filter = string.IsNullOrEmpty(partitionKey)
+                ? TableQuery.GenerateFilterCondition("PartitionKey", QueryComparisons.Equal, partitionKey)
+                : null;
             if (!string.IsNullOrEmpty(rowKey))
             {
-                filter = TableQuery.CombineFilters(filter,
-                    TableOperators.And,
-                    TableQuery.GenerateFilterCondition("RowKey", QueryComparisons.Equal, rowKey));
+                string newFilter = TableQuery.GenerateFilterCondition("RowKey", QueryComparisons.Equal, rowKey);
+                filter = filter == null
+                    ? newFilter
+                    : TableQuery.CombineFilters(filter, TableOperators.And, newFilter);
             }
             if (timestampMin != null)
             {
-                filter = TableQuery.CombineFilters(filter,
-                    TableOperators.And,
-                    TableQuery.GenerateFilterConditionForDate("Timestamp", QueryComparisons.GreaterThanOrEqual,
-                        timestampMin.Value));
+                string newFilter = TableQuery.GenerateFilterConditionForDate("Timestamp",
+                    QueryComparisons.GreaterThanOrEqual, timestampMin.Value);
+                filter = filter == null ? newFilter : TableQuery.CombineFilters(filter, TableOperators.And, newFilter);
             }
             if (timestampMax != null)
             {
-                filter = TableQuery.CombineFilters(filter,
-                    TableOperators.And,
-                    TableQuery.GenerateFilterConditionForDate("Timestamp", QueryComparisons.LessThanOrEqual,
-                        timestampMax.Value));
+                string newFilter = TableQuery.GenerateFilterConditionForDate("Timestamp",
+                    QueryComparisons.LessThanOrEqual,
+                    timestampMax.Value);
+                filter = filter == null
+                    ? newFilter
+                    : TableQuery.CombineFilters(filter, TableOperators.And, newFilter);
             }
-            var query = new TableQuery<T>().Where(filter);
+            TableQuery<T> query = new TableQuery<T>().Where(filter);
             return table.ExecuteQuery(query);
+        }
+
+        /// <summary>
+        ///     Replaces an existing entity or inserts a new entity if it does not exist in the repository. Because this operation
+        ///     can insert or update an entity, it is also known as an upsert operation.
+        /// </summary>
+        /// <param name="entity">The entity to insert or replace in the repository.</param>
+        public bool InsertOrReplace<T>(T entity) where T : TableEntity, new()
+        {
+            CloudTable table = GetTable<T>();
+            TableOperation upsertOperation = TableOperation.InsertOrReplace(entity);
+            TableResult result = table.Execute(upsertOperation);
+            return result.HttpStatusCode == 204;
+        }
+
+        /// <summary>
+        ///     Completely removes the table and all data for a given entity type from Azure Table Storage. Used for cleaning up
+        ///     after unit tests.
+        /// </summary>
+        /// <typeparam name="T">The entity type to remove the table for.</typeparam>
+        public void RemoveTable<T>() where T : TableEntity, new()
+        {
+            CloudTable table = GetTable<T>(false);
+            table.DeleteIfExists();
+            _tables.Remove(typeof (T));
         }
 
         /// <summary>
@@ -91,7 +121,7 @@ namespace MMPlus.Service.Data
             {
                 return table;
             }
-            var account = CloudStorageAccount.Parse(_connectionString);
+            CloudStorageAccount account = CloudStorageAccount.Parse(_connectionString);
             CloudTableClient client = account.CreateCloudTableClient();
             string tableName = _tablePrefix + type.Name.Pluralize();
             table = client.GetTableReference(tableName);
@@ -101,31 +131,6 @@ namespace MMPlus.Service.Data
             }
             _tables.Add(type, table);
             return table;
-        }
-
-        /// <summary>
-        ///     Replaces an existing entity or inserts a new entity if it does not exist in the repository. Because this operation
-        ///     can insert or update an entity, it is also known as an upsert operation.
-        /// </summary>
-        /// <param name="entity">The entity to insert or replace in the repository.</param>
-        public bool InsertOrReplace<T>(T entity) where T : TableEntity, new()
-        {
-            CloudTable table = GetTable<T>();
-            var upsertOperation = TableOperation.InsertOrReplace(entity);
-            TableResult result = table.Execute(upsertOperation);
-            return result.HttpStatusCode == 204;
-        }
-
-        /// <summary>
-        ///     Completely removes the table and all data for a given entity type from Azure Table Storage. Used for cleaning up
-        ///     after unit tests.
-        /// </summary>
-        /// <typeparam name="T">The entity type to remove the table for.</typeparam>
-        public void RemoveTable<T>() where T : TableEntity, new()
-        {
-            var table = GetTable<T>(false);
-            table.DeleteIfExists();
-            _tables.Remove(typeof (T));
         }
     }
 }

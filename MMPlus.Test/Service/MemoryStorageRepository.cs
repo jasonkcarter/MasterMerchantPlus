@@ -36,7 +36,7 @@ namespace MMPlus.Test.Service
         /// <param name="timestampMin">The minimum timestamp for entities to include</param>
         /// <param name="timestampMax">The maximum timestamp for entities to include.</param>
         /// <returns>A list of matching entities.</returns>
-        public IEnumerable<T> Find<T>(string partitionKey, string rowKey = null, DateTimeOffset? timestampMin = null,
+        public IEnumerable<T> Find<T>(string partitionKey = null, string rowKey = null, DateTimeOffset? timestampMin = null,
             DateTimeOffset? timestampMax = null) where T : TableEntity, new()
         {
             MemoryStorageTable<T> storageTable = GetTable<T>();
@@ -44,12 +44,27 @@ namespace MMPlus.Test.Service
             {
                 return new T[0];
             }
-            MemoryStoragePartition<T> partition = storageTable.GetPartition(partitionKey);
-            if (partition == null)
+
+            if (partitionKey == null)
+            {
+                List<T> entityList = new List<T>();
+                foreach (MemoryStoragePartition<T> partition in storageTable.GetPartitions())
+                {
+                    if (partition == null)
+                    {
+                        continue;
+                    }
+                    IEnumerable<T> results = partition.Find(rowKey, timestampMin, timestampMax);
+                    entityList.AddRange(results);
+                }
+                return entityList;
+            }
+            MemoryStoragePartition<T> singlePartition = storageTable.GetPartition(partitionKey);
+            if (singlePartition == null)
             {
                 return new T[0];
             }
-            return partition.Find(rowKey, timestampMin, timestampMax);
+            return singlePartition.Find(rowKey, timestampMin, timestampMax);
         }
 
         /// <summary>

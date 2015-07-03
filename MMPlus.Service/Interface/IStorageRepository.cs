@@ -23,7 +23,7 @@ namespace MMPlus.Service.Interface
         /// <param name="timestampMin">The minimum timestamp for entities to include</param>
         /// <param name="timestampMax">The maximum timestamp for entities to include.</param>
         /// <returns>A list of matching entities.</returns>
-        IEnumerable<T> Find<T>(string partitionKey, string rowKey = null, DateTimeOffset? timestampMin = null,
+        IEnumerable<T> Find<T>(string partitionKey = null, string rowKey = null, DateTimeOffset? timestampMin = null,
             DateTimeOffset? timestampMax = null) where T : TableEntity, new();
 
 

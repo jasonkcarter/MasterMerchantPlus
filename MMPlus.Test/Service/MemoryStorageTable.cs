@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using Microsoft.WindowsAzure.Storage.Table;
 
 namespace MMPlus.Test.Service
@@ -22,7 +23,7 @@ namespace MMPlus.Test.Service
         /// <returns>True upon successful delete. False if there was an error or if the entity did not exist in the table.</returns>
         public bool Delete(T entity)
         {
-            var partition = GetPartition(entity.PartitionKey);
+            MemoryStoragePartition<T> partition = GetPartition(entity.PartitionKey);
             if (partition == null)
             {
                 return false;
@@ -37,6 +38,13 @@ namespace MMPlus.Test.Service
             return partition;
         }
 
+        /// <summary>
+        ///     Gets a list of all partitions in this table.
+        /// </summary>
+        internal MemoryStoragePartition<T>[] GetPartitions()
+        {
+            return _partitions.Values.ToArray();
+        }
 
         /// <summary>
         ///     Replaces an existing entity or inserts a new entity if it does not exist in the table. Because this operation
@@ -45,7 +53,7 @@ namespace MMPlus.Test.Service
         /// <param name="entity">The entity to insert or replace in the table.</param>
         public void InsertOrReplace(T entity)
         {
-            var partition = GetPartition(entity.PartitionKey);
+            MemoryStoragePartition<T> partition = GetPartition(entity.PartitionKey);
             if (partition == null)
             {
                 partition = CreatePartition(entity.PartitionKey);
