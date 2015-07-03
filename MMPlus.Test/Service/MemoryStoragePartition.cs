@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Table;
 
 namespace MMPlus.Test.Service
@@ -63,7 +64,18 @@ namespace MMPlus.Test.Service
         {
             if (_rows.ContainsKey(entity.RowKey))
             {
-                _rows[entity.RowKey] = entity;
+                lock (_rows[entity.RowKey])
+                {
+                    T existing = _rows[entity.RowKey];
+                    if (entity.ETag == "*" || entity.ETag == existing.ETag)
+                    {
+                        entity.ETag = Guid.NewGuid().ToString("N");
+                        _rows[entity.RowKey] = entity;
+                        return;
+                    }
+                }
+                throw new StorageException(new RequestResult {HttpStatusCode = 412},
+                    "Optimistic concurrency violation – entity has changed since it was retrieved.", new Exception());
             }
             else
             {
