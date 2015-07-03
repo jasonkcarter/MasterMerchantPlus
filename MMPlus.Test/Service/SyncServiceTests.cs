@@ -45,7 +45,15 @@ namespace MMPlus.Test.Service
                 List<EsoSale> actualList =
                     repository.Find<EsoSale>(expected.PartitionKey, expected.RowKey).ToList();
                 Assert.IsNotNull(actualList);
-                Assert.AreEqual(1, actualList.Count());
+                int count = actualList.Count;
+                if (count == 0)
+                {
+                    Assert.Fail("Missing expected sale: {0}", expected.ToSemiDelimited());
+                }
+                if (count > 1)
+                {
+                    Assert.Fail("More than one record found for sale: {0}", expected.ToSemiDelimited());
+                }
                 EsoSale actual = actualList.First();
                 if (!expected.Equals(actual))
                 {
@@ -54,6 +62,7 @@ namespace MMPlus.Test.Service
                         expected.PartitionKey, expected.RowKey, expected.ToSemiDelimited(), actual.ToSemiDelimited());
                 }
             }
+            List<EsoSale> unexpectedSales = newSales.Except(expectedSales).ToList();
             EsoSale unexpectedSale = newSales.Except(expectedSales).FirstOrDefault();
             if (unexpectedSale != null)
             {

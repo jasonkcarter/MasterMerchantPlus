@@ -1,6 +1,6 @@
-Ethereal Traders Union;1423388720;45871;50:3:1:0:0;1;150;@account1;@account2;0;False;|H0:item:45871:113:50:0:0:0:0:0:0:0:0:0:0:0:0:7:0:0:0:0:0|hgreater glyph of reduce feat cost^n|h;
+Ethereal Traders Union;1423388720;45871;50:3:1:0:0;1;150;@account1;@account2;1;False;|H0:item:45871:113:50:0:0:0:0:0:0:0:0:0:0:0:0:7:0:0:0:0:0|hgreater glyph of reduce feat cost^n|h;
 Ethereal Traders Union;1423388725;45871;50:3:1:0:0;1;150;@account1;@account2;1;False;|H0:item:45871:113:50:0:0:0:0:0:0:0:0:0:0:0:0:7:0:0:0:0:0|hgreater glyph of reduce feat cost^n|h;
 Ethereal Traders Union;1423388725;45871;50:3:1:0:0;1;150;@account1;@account2;2;False;|H0:item:45871:113:50:0:0:0:0:0:0:0:0:0:0:0:0:7:0:0:0:0:0|hgreater glyph of reduce feat cost^n|h;
-Ethereal Traders Union;1423388730;45871;50:3:1:0:0;1;150;@account1;@account2;2;False;|H0:item:45871:113:50:0:0:0:0:0:0:0:0:0:0:0:0:7:0:0:0:0:0|hgreater glyph of reduce feat cost^n|h;
-Ethereal Traders Union;1423388730;45871;50:3:1:0:0;1;150;@account1;@account2;2;False;|H0:item:45871:113:50:0:0:0:0:0:0:0:0:0:0:0:0:7:0:0:0:0:0|hgreater glyph of reduce feat cost^n|h;
+Ethereal Traders Union;1423388730;45871;50:3:1:0:0;1;150;@account1;@account2;1;False;|H0:item:45871:113:50:0:0:0:0:0:0:0:0:0:0:0:0:7:0:0:0:0:0|hgreater glyph of reduce feat cost^n|h;
+Ethereal Traders Union;1423388730;45871;50:3:1:0:0;1;150;@account1;@account2;1;False;|H0:item:45871:113:50:0:0:0:0:0:0:0:0:0:0:0:0:7:0:0:0:0:0|hgreater glyph of reduce feat cost^n|h;
 Ethereal Traders Union;1423388800;45871;50:3:1:0:0;1;151;@account1;@account2;1;False;|H0:item:45871:113:50:0:0:0:0:0:0:0:0:0:0:0:0:7:0:0:0:0:0|hgreater glyph of reduce feat cost^n|h;

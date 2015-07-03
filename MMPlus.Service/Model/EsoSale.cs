@@ -84,6 +84,11 @@ namespace MMPlus.Service.Model
             _autoGenerateRowKey = autoGenerateRowKey;
         }
 
+        /// <summary>
+        ///     Gets or sets the number of times this sale has been submitted from a unique machine id.
+        /// </summary>
+        public int SubmitterCount { get; set; }
+
         public int CompareTo(object other)
         {
             var sale = other as EsoSale;
@@ -101,7 +106,7 @@ namespace MMPlus.Service.Model
             {
                 return 1;
             }
-            var result = string.CompareOrdinal(PartitionKey, other.PartitionKey);
+            int result = string.CompareOrdinal(PartitionKey, other.PartitionKey);
             if (result != 0) return result;
             result = string.Compare(RowKey, other.RowKey);
             if (result != 0) return result;
@@ -200,7 +205,7 @@ namespace MMPlus.Service.Model
                 EsoItemQuality quality;
                 EsoItemTrait trait;
                 int potionEffects;
-                var validIndex = EsoItem.TryParseIndex(ItemIndex,
+                bool validIndex = EsoItem.TryParseIndex(ItemIndex,
                     out level, out veteranRank, out quality, out trait, out potionEffects);
                 if (validIndex)
                 {
@@ -345,7 +350,7 @@ namespace MMPlus.Service.Model
             private set
             {
                 _timestampId = value;
-                PartitionKey = value.ToString(CultureInfo.InvariantCulture);
+                PartitionKey = GeneratePartitionKey(this);
             }
         }
 
@@ -368,6 +373,32 @@ namespace MMPlus.Service.Model
             }
         }
 
+        public static EsoSale Create(IEsoSale sale)
+        {
+            EsoSale newSale = new EsoSale(false)
+            {
+                SaleTimestamp = sale.SaleTimestamp,
+                Buyer = sale.Buyer,
+                Seller = sale.Seller,
+                ItemBaseId = sale.ItemBaseId,
+                ItemIndex = sale.ItemIndex,
+                ItemLink = sale.ItemLink,
+                ItemIcon = sale.ItemIcon,
+                Price = sale.Price,
+                Quantity = sale.Quantity,
+                RelativeOrderIndex = sale.RelativeOrderIndex,
+                GuildName = sale.GuildName,
+                WasKiosk = sale.WasKiosk
+            }.GenerateRowKey();
+            return newSale;
+        }
+
+        public static string GeneratePartitionKey(IEsoSale sale)
+        {
+            string partitionKey = sale.TimestampId.ToString(CultureInfo.InvariantCulture);
+            return partitionKey;
+        }
+
         public static EsoSale CreateFromSemiDelimited(string semiDelimitedString)
         {
             var sale = new EsoSale();
@@ -375,19 +406,25 @@ namespace MMPlus.Service.Model
             return sale;
         }
 
+        public static string GenerateRowKey(IEsoSale sale)
+        {
+            string rowKey = string.Format("{0};{1};{2};{3};{4};{5};{6};{7};{8};{9}",
+                PrepareForKey(sale.GuildName),
+                sale.SaleTimestamp,
+                PrepareForKey(sale.ItemBaseId),
+                PrepareForKey(sale.ItemIndex),
+                sale.Quantity,
+                sale.Price,
+                PrepareForKey(sale.Buyer),
+                PrepareForKey(sale.Seller),
+                sale.RelativeOrderIndex,
+                sale.WasKiosk);
+            return rowKey;
+        }
+
         public virtual EsoSale GenerateRowKey()
         {
-            RowKey = string.Format("{0};{1};{2};{3};{4};{5};{6};{7};{8};{9}",
-                PrepareForKey(GuildName),
-                SaleTimestamp,
-                PrepareForKey(ItemBaseId),
-                PrepareForKey(ItemIndex),
-                Quantity,
-                Price,
-                PrepareForKey(Buyer),
-                PrepareForKey(Seller),
-                RelativeOrderIndex,
-                WasKiosk);
+            RowKey = GenerateRowKey(this);
             return this;
         }
 
@@ -401,21 +438,21 @@ namespace MMPlus.Service.Model
             if (string.IsNullOrEmpty(ItemLink)) return null;
 
             // Separate the link into the details portion and the name portion
-            var linkParts = ItemLink.Split(new[] {"|h"}, StringSplitOptions.None);
+            string[] linkParts = ItemLink.Split(new[] {"|h"}, StringSplitOptions.None);
 
             // The name portion is the second part
             if (linkParts.Length < 2) return null;
-            var name = linkParts[1];
+            string name = linkParts[1];
 
             // ESO sometimes returns item names ending in ^p or ^n. Remove that part.
-            var carrotIndex = name.IndexOf('^');
+            int carrotIndex = name.IndexOf('^');
             if (carrotIndex > -1)
             {
                 name = name.Substring(0, carrotIndex);
             }
 
             // Normalize the name into the local culture's title casing
-            var cultureTextInfo = CultureInfo.CurrentUICulture.TextInfo;
+            TextInfo cultureTextInfo = CultureInfo.CurrentUICulture.TextInfo;
             name = cultureTextInfo.ToTitleCase(name);
 
             return name;
@@ -423,13 +460,13 @@ namespace MMPlus.Service.Model
 
         public void LoadFromSemiDelimited(string data)
         {
-            var parts = data.Split(';');
+            string[] parts = data.Split(';');
             if (parts.Length != 12)
             {
                 throw new InvalidOperationException(string.Format("Expected 12 fields in serialized input. Actual {0}",
                     parts.Length));
             }
-            var autoGenerateRowKey = _autoGenerateRowKey;
+            bool autoGenerateRowKey = _autoGenerateRowKey;
             _autoGenerateRowKey = false;
             GuildName = parts[0];
             SaleTimestamp = int.Parse(parts[1]);
@@ -453,7 +490,7 @@ namespace MMPlus.Service.Model
         /// <param name="item">The item containing the property data to copy.</param>
         public void Set(EsoItem item)
         {
-            var autoPopulateRowKey = _autoGenerateRowKey;
+            bool autoPopulateRowKey = _autoGenerateRowKey;
             _autoGenerateRowKey = false;
             ItemBaseId = item.BaseId;
             ItemIndex = item.ItemIndex;
@@ -491,7 +528,7 @@ namespace MMPlus.Service.Model
                 return null;
             }
             var output = new StringBuilder();
-            foreach (var c in input)
+            foreach (char c in input)
             {
                 // Ignore control characters
                 if (char.IsControl(c))
@@ -513,6 +550,11 @@ namespace MMPlus.Service.Model
                 }
             }
             return output.ToString();
+        }
+
+        public override int GetHashCode()
+        {
+            return (PartitionKey ?? string.Empty).GetHashCode() + (RowKey ?? string.Empty).GetHashCode();
         }
     }
 }

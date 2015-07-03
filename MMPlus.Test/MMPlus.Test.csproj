@@ -133,18 +133,6 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Resources\log.txt" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\SyncService_Put_Existing.txt" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\SyncService_Put_In.txt" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\SyncService_Put_In1.txt" />
-  </ItemGroup>
-  <ItemGroup>
     <None Include="Resources\SyncService_Put_Act.txt" />
   </ItemGroup>
   <ItemGroup>

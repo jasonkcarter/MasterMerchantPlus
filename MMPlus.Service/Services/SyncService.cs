@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.ServiceModel;
 using MMPlus.Service.Interface;
+using MMPlus.Service.Model;
 using MMPlus.Shared.Interface;
 
 namespace MMPlus.Service.Services
@@ -49,7 +51,31 @@ namespace MMPlus.Service.Services
         [OperationContract(IsOneWay = true, AsyncPattern = true)]
         public void Put(string machineId, IEnumerable<IEsoSale> sales)
         {
-            throw new NotImplementedException();
+            foreach (IEsoSale sale in sales)
+            {
+                int relativeOrderIndex = sale.RelativeOrderIndex;
+                string partitionKey = EsoSale.GeneratePartitionKey(sale);
+                string rowKey = EsoSale.GenerateRowKey(sale);
+                EsoSale existing =
+                    _repository.Find<EsoSale>(partitionKey, rowKey)
+                        .FirstOrDefault();
+                if (existing != null)
+                {
+                    if (existing.SubmitterCount < 3 && !existing.Submitter.Contains(machineId))
+                    {
+                        existing.SubmitterCount++;
+                        existing.Submitter += "; " + machineId;
+                        _repository.InsertOrReplace(existing);
+                    }
+                }
+                else
+                {
+                    EsoSale newSale = EsoSale.Create(sale);
+                    newSale.Submitter = machineId;
+                    newSale.SubmitterCount = 1;
+                    _repository.InsertOrReplace(newSale);
+                }
+            }
         }
     }
 }
